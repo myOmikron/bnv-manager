@@ -166,7 +166,8 @@ AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
 AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-    "is_superuser": "cn=superuser,ou=Groups,dc=example,dc=com"
+    "is_staff": "cn=superuser,ou=Groups,dc=example,dc=com",
+    "is_superuser": "cn=superuser,ou=Groups,dc=example,dc=com",
 }
 
 AUTH_LDAP_USER_ATTR_MAP = {
