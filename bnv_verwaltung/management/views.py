@@ -1,7 +1,19 @@
+import hashlib
+from base64 import encodestring as encode
+import os
+
 import ldap
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import TemplateView
+
+
+def make_secret(password):
+    salt = os.urandom(4)
+    h = hashlib.sha1(password)
+    h.update(salt)
+    return "{SSHA}".encode("utf-8") + encode(h.digest() + salt)
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -24,9 +36,7 @@ class AddView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         from bnv_verwaltung import settings
-        import hashlib
         import ldap.modlist
-        from base64 import urlsafe_b64encode as encode
         l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
         l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
         modlist = ldap.modlist.addModlist(
@@ -38,9 +48,7 @@ class AddView(LoginRequiredMixin, TemplateView):
                 "objectClass": ["BNVuser".encode("utf-8"), "top".encode("utf-8")],
                 "uid": [request.POST["uid"].encode("utf-8")],
                 "Verein": [request.POST["verein"].encode("utf-8")],
-                "userPassword": ["{SHA512}".encode("utf-8") +
-                                 encode(hashlib.sha512(request.POST['pw'].encode('utf-8')).digest())],
-
+                "userPassword": [make_secret(request.POST['pw'])],
             }
         )
         l.add_s(f"uid={request.POST['uid']},{settings.LDAP_USER_DN}", modlist=modlist)
