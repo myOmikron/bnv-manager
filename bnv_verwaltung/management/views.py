@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 
 def make_secret(password):
     salt = os.urandom(4)
-    h = hashlib.sha1(password)
+    h = hashlib.sha1(password.encode("utf-8"))
     h.update(salt)
     return "{SSHA}".encode("utf-8") + encode(h.digest() + salt)
 
