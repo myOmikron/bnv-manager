@@ -176,3 +176,5 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "last_name": "sn",
     "email": "mail",
 }
+
+LDAP_USER_DN = "ou=Users,dc=example,dc=com"
