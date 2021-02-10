@@ -36,6 +36,7 @@ class AddView(LoginRequiredMixin, TemplateView):
                 "objectClass": ["BNVuser".encode("utf-8"), "top".encode("utf-8")],
                 "uid": [request.POST["uid"].encode("utf-8")],
                 "Verein": [request.POST["verein"].encode("utf-8")],
+                "userPassword": [request.POST["pw"].encode("utf-8")],
 
             }
         )
