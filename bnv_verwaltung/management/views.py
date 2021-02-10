@@ -39,6 +39,6 @@ class AddView(LoginRequiredMixin, TemplateView):
 
             }
         )
-        l.add_s(request.POST["uid"] + settings.LDAP_USER_DN, modlist=modlist)
+        l.add_s(f"uid={request.POST['uid']},{settings.LDAP_USER_DN}", modlist=modlist)
         l.unbind_s()
         return render(request, self.template_name)
