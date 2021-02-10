@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block body %}
+<form method="POST">
+    {% csrf_token %}
+    <label>UID<input value="uid" required></label>
+    <label>Vorname<input value="givenName" required></label>
+    <label>Nachname<input value="sn" required></label>
+    <label>Mail<input value="mail" required></label>
+    <label>Verein<input value="verein" required></label>
+    <label>Quota<input value="quota" required></label>
+    <button>Submit</button>
+</form>
+{% endblock %}
