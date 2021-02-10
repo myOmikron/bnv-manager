@@ -24,6 +24,7 @@ class AddView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         from bnv_verwaltung import settings
+        import hashlib
         import ldap.modlist
         l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
         l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
@@ -36,7 +37,7 @@ class AddView(LoginRequiredMixin, TemplateView):
                 "objectClass": ["BNVuser".encode("utf-8"), "top".encode("utf-8")],
                 "uid": [request.POST["uid"].encode("utf-8")],
                 "Verein": [request.POST["verein"].encode("utf-8")],
-                "userPassword": [request.POST["pw"].encode("utf-8")],
+                "userPassword": [hashlib.sha512(request.POST["pw"].encode("utf-8"))],
 
             }
         )
