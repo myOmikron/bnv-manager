@@ -11,6 +11,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
         from bnv_verwaltung import settings
         l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
         l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
-        users = l.search_s(settings.LDAP_USER_DN, ldap.SCOPE_SUBTREE)
+        users = l.search_s(settings.LDAP_USER_DN, ldap.SCOPE_SUBTREE, settings.LDAP_USER_FILTER)
+        l.unbind_s()
         print(users)
         return render(request, self.template_name, {"users": users})
