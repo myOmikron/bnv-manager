@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import ldap
+from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion, GroupOfNamesType
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -125,3 +128,45 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {"django_auth_ldap": {"level": "DEBUG", "handlers": ["console"]}},
+}
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login'
+LOGOUT_REDIRECT_URL = '/login'
+
+AUTHENTICATION_BACKENDS = [
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+AUTH_LDAP_SERVER_URI = "ldap://ldap.example.com"
+# If you wanna use starttls, set this option
+# AUTH_LDAP_START_TLS = True
+
+# Specify if you want to use tls/ssl
+# ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+
+AUTH_LDAP_BIND_DN = ""
+AUTH_LDAP_BIND_PASSWORD = ""
+AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
+    LDAPSearch("ou=User1,dc=ldap,dc=example,dc=com", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
+    LDAPSearch("ou=User2,dc=ldap,dc=example,dc=com", ldap.SCOPE_SUBTREE, "(cn=%(user)s)")
+)
+AUTH_LDAP_CACHE_TIMEOUT = 3600
+AUTH_LDAP_FIND_GROUP_PERMS = True
+AUTH_LDAP_MIRROR_GROUPS = True
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "ou=Groups,dc=ldap,dc=example,dc=com", ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)"
+)
+AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
