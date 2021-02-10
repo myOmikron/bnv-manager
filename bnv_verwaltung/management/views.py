@@ -26,6 +26,7 @@ class AddView(LoginRequiredMixin, TemplateView):
         from bnv_verwaltung import settings
         import hashlib
         import ldap.modlist
+        from base64 import urlsafe_b64encode as encode
         l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
         l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
         modlist = ldap.modlist.addModlist(
@@ -37,7 +38,7 @@ class AddView(LoginRequiredMixin, TemplateView):
                 "objectClass": ["BNVuser".encode("utf-8"), "top".encode("utf-8")],
                 "uid": [request.POST["uid"].encode("utf-8")],
                 "Verein": [request.POST["verein"].encode("utf-8")],
-                "userPassword": [f"{{SHA512}}{hashlib.sha512(request.POST['pw'])}".encode("utf-8")],
+                "userPassword": ["{SHA512}".encode("utf-8") + encode(hashlib.sha512(request.POST['pw'].encode('utf-8')))],
 
             }
         )
