@@ -2,12 +2,12 @@
 {% block body %}
 <form method="POST">
     {% csrf_token %}
-    <label>UID<input value="uid" required></label>
-    <label>Vorname<input value="givenName" required></label>
-    <label>Nachname<input value="sn" required></label>
-    <label>Mail<input value="mail" required></label>
-    <label>Verein<input value="verein" required></label>
-    <label>Quota<input value="quota" required></label>
+    <label>UID<input name="uid" required></label>
+    <label>Vorname<input name="givenName" required></label>
+    <label>Nachname<input name="sn" required></label>
+    <label>Mail<input name="mail" required></label>
+    <label>Verein<input name="verein" required></label>
+    <label>Quota<input name="quota" required></label>
     <button>Submit</button>
 </form>
 {% endblock %}
