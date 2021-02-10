@@ -29,13 +29,13 @@ class AddView(LoginRequiredMixin, TemplateView):
         l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
         modlist = ldap.modlist.addModlist(
             {
-                "givenName": [bytes(request.POST["givenName"])],
-                "sn": [bytes(request.POST["sn"])],
-                "mail": [bytes(request.POST["mail"])],
-                "MailQuota": [bytes(request.POST["quota"])],
-                "objectClass": [bytes("BNVuser"), bytes("top")],
-                "uid": [bytes(request.POST["uid"])],
-                "Verein": [bytes(request.POST["verein"])],
+                "givenName": [request.POST["givenName"].encode("utf-8")],
+                "sn": [request.POST["sn"].encode("utf-8")],
+                "mail": [request.POST["mail"].encode("utf-8")],
+                "MailQuota": [request.POST["quota"].encode("utf-8")],
+                "objectClass": ["BNVuser".encode("utf-8"), "top".encode("utf-8")],
+                "uid": [request.POST["uid"].encode("utf-8")],
+                "Verein": [request.POST["verein"].encode("utf-8")],
 
             }
         )
