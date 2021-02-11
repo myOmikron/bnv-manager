@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block body %}
 {% for user in users %}
-{{ user }}<br><form method="POST" target="/management/delete/{{ user.uid }}"><button>x</button></form>
+{{ user }}<br><form method="POST" target="/management/delete/{{ user.uid }}">{% csrf_token %}<button>x</button></form>
 {% endfor %}
 {% endblock %}
