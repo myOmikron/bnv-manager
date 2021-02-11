@@ -5,7 +5,8 @@ import os
 import ldap
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.views import View
 from django.views.generic import TemplateView
 
 from bnv_verwaltung import settings
@@ -39,7 +40,6 @@ class AddView(LoginRequiredMixin, TemplateView):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        from bnv_verwaltung import settings
         import ldap.modlist
         l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
         l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
@@ -58,3 +58,13 @@ class AddView(LoginRequiredMixin, TemplateView):
         l.add_s(f"uid={request.POST['uid']},{settings.LDAP_USER_DN}", modlist=modlist)
         l.unbind_s()
         return render(request, self.template_name)
+
+
+class DeleteView(LoginRequiredMixin, View):
+
+    def post(self, request, k="", *args, **kwargs):
+        l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+        l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+        l.delete_s(f"uid={k},{settings.LDAP_USER_DN}")
+        l.unbind_s()
+        return redirect("/management/index")
