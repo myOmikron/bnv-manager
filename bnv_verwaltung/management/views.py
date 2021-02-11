@@ -1,5 +1,5 @@
 import hashlib
-from base64 import encodestring as encode
+from base64 import b64encode
 import os
 
 import ldap
@@ -13,7 +13,7 @@ def make_secret(password):
     salt = os.urandom(4)
     h = hashlib.sha1(password.encode("utf-8"))
     h.update(salt)
-    return "{SSHA}".encode("utf-8") + encode(h.digest() + salt)
+    return "{SSHA}".encode("utf-8") + b64encode(h.digest() + salt)
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
