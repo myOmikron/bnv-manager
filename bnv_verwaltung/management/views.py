@@ -25,11 +25,22 @@ class IndexView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
         l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
-        users = l.search_s(settings.LDAP_USER_DN,
-                           ldap.SCOPE_SUBTREE,
-                           settings.LDAP_USER_FILTER,
-                           attrlist=["givenName", "sn", "mail", "MailQuota", "Verein", "uid"])
+        ldap_users = l.search_s(settings.LDAP_USER_DN,
+                                ldap.SCOPE_SUBTREE,
+                                settings.LDAP_USER_FILTER,
+                                attrlist=["givenName", "sn", "mail", "MailQuota", "Verein", "uid"])
         l.unbind_s()
+        users = []
+        for user in ldap_users:
+            x = {
+                "uid": user[1]["uid"][0].decode("utf-8"),
+                "givenName": user[1]["givenName"][0].decode("utf-8"),
+                "sn": user[1]["givenName"][0].decode("utf-8"),
+                "mail": user[1]["givenName"][0].decode("utf-8"),
+                "quota": user[1]["givenName"][0].decode("utf-8"),
+                "Verein": user[1]["givenName"][0].decode("utf-8"),
+            }
+            users.append(x)
         return render(request, self.template_name, {"users": users})
 
 
