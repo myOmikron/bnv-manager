@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 
-from bnv_verwaltung import settings
+from bnv_manager import settings
 
 
 def make_secret(password):
