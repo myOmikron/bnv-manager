@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="flexRow">
+    <div class="flexColumn">
+        <h3>{{ info }}</h3>
+        <a class="menuLink" href="{{ request.META.HTTP_REFERER }}"><h4>Take me back</h4></a>
+    </div>
+</div>
+{% endblock %}
