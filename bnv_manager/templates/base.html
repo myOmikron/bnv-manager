@@ -2,12 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>BNV Manager</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bnv.css' %}">
 </head>
 <body>
+<div class="header">
+    <h2 class="menuHeading">BNV Manager</h2>
+    <div class="menuLinks">
+        <a href="/admin/" class="menuLink">Administration</a>
+    </div>
+</div>
 <div class="content">
 {% block body %}
 {% endblock %}
 </div>
+<footer class="footer">
+
+</footer>
 </body>
 </html>

@@ -1,0 +1,130 @@
+.colors {
+    background-color: #111111;
+    background-color: #1c1c1c;
+    background-color: #242424;
+    background-color: #313131;
+    background-color: #b55400;
+    background-color: #eeeeee;
+}
+
+body {
+    margin: 0;
+    background-color: #1a1a1a;
+    color: #eeeeee;
+    font-family: "Source Sans Pro", "Arial", sans-serif;
+}
+
+.header {
+    background-color: #242424;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 4px 4px 4px #111111;
+}
+
+.footer {
+    background-color: #242424;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    height: 3em;
+    width: 100%;
+}
+
+.content {
+    margin-top: 5em;
+    margin-bottom: 2em;
+}
+
+.menuHeading {
+    margin-left: 2em;
+}
+
+.menuLinks {
+    display: flex;
+}
+
+.menuLink {
+    font-weight: bold;
+    color: #eeeeee;
+    text-decoration: none;
+    margin-left: 1em;
+    margin-right: 1em;
+    outline: none;
+    transition: color 100ms linear;
+}
+
+.menuLink:hover {
+    color: #b55400;
+}
+
+.loginBox {
+    background-color: #242424;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 20em;
+    margin-top: 5vh;
+    padding: 2em 1em;
+    border: 1px solid #111111;
+    box-shadow: 4px 4px 4px #111111;
+}
+
+.loginBox input {
+    background-color: #2b2b2b;
+    padding: 0.5em;
+    color: #eeeeee;
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    outline:none;
+    margin: 0.75em;
+    transition: background-color, border 100ms linear;
+    width: 90%;
+}
+
+.loginBox input:hover {
+    border: 1px solid #b55400;
+    background-color: #313131;
+}
+
+.loginBox input:focus {
+    border: 1px solid #b55400;
+    background-color: #313131;
+}
+
+.loginBox button {
+    color: #eeeeee;
+    padding: 0.5em;
+    background-color: #b55400;
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    margin: 0.75em;
+    cursor: pointer;
+    transition: background-color 100ms linear;
+}
+
+.loginBox button:hover {
+    background-color: #974501;
+}
+
+.loginBox button:focus {
+    background-color: #974501;
+}
+
+.loginBox p {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+    font-size: 90%;
+}
+
+.flexRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
