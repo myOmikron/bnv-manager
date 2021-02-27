@@ -130,6 +130,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    '/var/www/static/',
+]
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
