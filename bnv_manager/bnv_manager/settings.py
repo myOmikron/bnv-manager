@@ -185,3 +185,5 @@ AUTH_LDAP_USER_ATTR_MAP = {
 
 LDAP_USER_DN = "ou=Users,dc=example,dc=com"
 LDAP_USER_FILTER = ""
+MAILCOW_API_URL = ""
+MAILCOW_API_KEY = ""
