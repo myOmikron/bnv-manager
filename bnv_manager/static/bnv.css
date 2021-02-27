@@ -128,3 +128,44 @@ body {
     flex-direction: row;
     justify-content: center;
 }
+
+.flexColumn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.managementItemBox {
+    padding: 0.75em;
+    background-color: #242424;
+    transition: background-color 100ms linear;
+}
+
+
+.administrationContent {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 8em 2em 4em;
+}
+
+.administrationItem {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    background-color: #242424;
+    padding: 2em;
+    width: 15em;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid #111111;
+    box-shadow: 4px 4px 4px #111111;
+    transition: background-color, color 100ms linear;
+    margin-right: 3em;
+    margin-bottom: 2em;
+}
+
+.administrationItem:hover {
+    color: #b55400;
+}
