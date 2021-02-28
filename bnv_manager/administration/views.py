@@ -22,13 +22,13 @@ class DomainView(LoginRequiredMixin, TemplateView):
         if not request.user.is_superuser:
             return render(request, "generic/notallowed.html")
         domain_list = get_domains()
-        group_list = Group.objects.filter(name__regex=r"^(?!.*superuser).*$")
+        club_list = Group.objects.filter(name__regex=r"^(?!.*superuser).*$")
         return render(
             request,
             self.template_name,
             {
                 "domain_list": domain_list,
-                "group_list": group_list
+                "club_list": club_list
             }
         )
 
@@ -39,8 +39,8 @@ class ClubView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return render(request, "generic/notallowed.html")
-        group_list = Group.objects.filter(name__regex=r"^(?!.*superuser).*$")
-        return render(request, self.template_name, {"group_list": group_list})
+        club_list = Group.objects.filter(name__regex=r"^(?!.*superuser).*$")
+        return render(request, self.template_name, {"club_list": club_list})
 
 
 class ClubAddView(LoginRequiredMixin, TemplateView):
@@ -54,7 +54,7 @@ class ClubAddView(LoginRequiredMixin, TemplateView):
         if not created:
             return render(request, "generic/info.html", {"message": "This group already exists."})
         group.save()
-        return redirect("/administration/groups")
+        return redirect("/administration/clubs")
 
 
 class ClubDeleteView(LoginRequiredMixin, TemplateView):

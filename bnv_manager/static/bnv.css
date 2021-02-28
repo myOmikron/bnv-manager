@@ -169,7 +169,7 @@ button:focus {
 .administrationItem:hover {
     color: #b55400;
 }
-.administrationAddGroup {
+.administrationAddClub {
     display: flex;
     width: 25em;
     justify-content: left;
@@ -188,32 +188,32 @@ button:focus {
     display: none;
 }
 
-.administrationGroup {
+.administrationClub {
     display: flex;
     flex-direction: column;
 }
 
-.administrationAddGroup button {
+.administrationAddClub button {
     height: 2.5em;
     width: 7em;
     transition: color 100ms linear;
     margin-left: 5em;
 }
 
-.administrationAddGroupColumn {
+.administrationAddClubColumn {
     display: flex;
     flex-direction: column-reverse;
 }
 
-.administrationAddGroupColumn p {
+.administrationAddClubColumn p {
     margin-bottom: 0;
 }
 
-.administrationAddGroupColumn h3 {
+.administrationAddClubColumn h3 {
     margin: 0;
 }
 
-.administrationGroupItem {
+.administrationClubItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -229,7 +229,7 @@ button:focus {
     margin-bottom: 2em;
 }
 
-.administrationGroupItem button {
+.administrationClubItem button {
     width: 5em;
     height: 5em;
     background-color: #2b2b2b;
@@ -244,16 +244,16 @@ button:focus {
 
 }
 
-.administrationGroupItem button:hover {
+.administrationClubItem button:hover {
     background-color: #b55400;
 }
 
-.administrationGroupItem img {
+.administrationClubItem img {
     height: 2em;
     filter: invert(255);
 }
 
-.administrationGroupContent {
+.administrationClubContent {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
