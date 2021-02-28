@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="flexRow">
+{% for domain in domain_list %}
+    <div class="managementItemBox">
+        {{ domain }}
+        <label>
+            <select>
+            {% for group in group_list %}
+                <option>{{ group.name }}</option>
+            {% endfor %}
+            </select>
+        </label>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}

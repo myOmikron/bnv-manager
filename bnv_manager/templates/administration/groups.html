@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body %}
+<div class="administrationContent">
+    <div class="administrationGroup">
+        <form method="POST" action="/administration/groups/add">
+            {% csrf_token %}
+            <div id="addGroup" class="administrationAddGroup">
+                <div class="administrationAddGroupColumn">
+                    <label><input name="name" required></label>
+                    <p>Enter name for group:</p>
+                    <h3>Add group</h3>
+                </div>
+                <button>Create</button>
+            </div>
+        </form>
+        <div class="administrationGroupContent">
+        {% for group in group_list %}
+            <div class="administrationGroupItem">
+                {{ group.name }}
+                <form action="/administration/groups/delete/{{ group.name }}" method="POST">
+                     {% csrf_token %}
+                    <button><img alt="Delete" src="{% static 'img/delete.svg' %}"></button>
+                </form>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
