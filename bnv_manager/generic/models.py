@@ -10,16 +10,17 @@ class Domain(models.Model):
         return self.name
 
 
-class AdvancedUser(models.Model):
-    user = OneToOneField(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.user.username
-
-
 class AdvancedGroup(models.Model):
     group = OneToOneField(Group, on_delete=models.CASCADE)
     associated_domains = ManyToManyField(Domain)
 
     def __str__(self):
         return self.group.name
+
+
+class AdvancedUser(models.Model):
+    user = OneToOneField(User, on_delete=models.CASCADE)
+    associated_clubs = ManyToManyField(AdvancedGroup)
+
+    def __str__(self):
+        return self.user.username
