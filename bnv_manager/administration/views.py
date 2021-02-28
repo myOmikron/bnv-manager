@@ -33,8 +33,8 @@ class DomainView(LoginRequiredMixin, TemplateView):
         )
 
 
-class GroupView(LoginRequiredMixin, TemplateView):
-    template_name = "administration/groups.html"
+class ClubView(LoginRequiredMixin, TemplateView):
+    template_name = "administration/clubs.html"
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -43,7 +43,7 @@ class GroupView(LoginRequiredMixin, TemplateView):
         return render(request, self.template_name, {"group_list": group_list})
 
 
-class GroupAddView(LoginRequiredMixin, TemplateView):
+class ClubAddView(LoginRequiredMixin, TemplateView):
     template_name = "generic/notallowed.html"
 
     def post(self, request):
@@ -57,7 +57,7 @@ class GroupAddView(LoginRequiredMixin, TemplateView):
         return redirect("/administration/groups")
 
 
-class GroupDeleteView(LoginRequiredMixin, TemplateView):
+class ClubDeleteView(LoginRequiredMixin, TemplateView):
     template_name = "generic/notallowed.html"
 
     def post(self, request, name="", *args, **kwargs):
@@ -67,5 +67,5 @@ class GroupDeleteView(LoginRequiredMixin, TemplateView):
             group = Group.objects.get(name=name)
             group.delete()
         except Group.DoesNotExist:
-            return render(request, "generic/info.html", {"message": "This group does not exist."})
-        return redirect("/administration/groups")
+            return render(request, "generic/info.html", {"message": "This club does not exist."})
+        return redirect("/administration/clubs")
