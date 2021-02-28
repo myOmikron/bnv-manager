@@ -76,7 +76,7 @@ body {
     box-shadow: 4px 4px 4px #111111;
 }
 
-.loginBox input {
+input {
     background-color: #2b2b2b;
     padding: 0.5em;
     color: #eeeeee;
@@ -88,17 +88,17 @@ body {
     width: 90%;
 }
 
-.loginBox input:hover {
+input:hover {
     border: 1px solid #b55400;
     background-color: #313131;
 }
 
-.loginBox input:focus {
+input:focus {
     border: 1px solid #b55400;
     background-color: #313131;
 }
 
-.loginBox button {
+button {
     color: #eeeeee;
     padding: 0.5em;
     background-color: #b55400;
@@ -109,11 +109,11 @@ body {
     transition: background-color 100ms linear;
 }
 
-.loginBox button:hover {
+button:hover {
     background-color: #974501;
 }
 
-.loginBox button:focus {
+button:focus {
     background-color: #974501;
 }
 
@@ -168,4 +168,93 @@ body {
 
 .administrationItem:hover {
     color: #b55400;
+}
+.administrationAddGroup {
+    display: flex;
+    width: 25em;
+    justify-content: left;
+    align-items: flex-end;
+    background-color: #242424;
+    padding: 2em;
+    font-weight: bold;
+    border: 1px solid #111111;
+    box-shadow: 4px 4px 4px #111111;
+    transition: background-color 100ms linear, color 100ms linear;
+    margin-right: 3em;
+    margin-bottom: 2em;
+}
+
+.hidden {
+    display: none;
+}
+
+.administrationGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.administrationAddGroup button {
+    height: 2.5em;
+    width: 7em;
+    transition: color 100ms linear;
+    margin-left: 5em;
+}
+
+.administrationAddGroupColumn {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.administrationAddGroupColumn p {
+    margin-bottom: 0;
+}
+
+.administrationAddGroupColumn h3 {
+    margin: 0;
+}
+
+.administrationGroupItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #242424;
+    padding: 1.5em;
+    width: 15em;
+    height: 1em;
+    font-weight: bold;
+    border: 1px solid #111111;
+    box-shadow: 4px 4px 4px #111111;
+    transition: background-color 100ms linear, color 100ms linear;
+    margin-right: 3em;
+    margin-bottom: 2em;
+}
+
+.administrationGroupItem button {
+    width: 5em;
+    height: 5em;
+    background-color: #2b2b2b;
+    display: flex;
+    border: 1px black solid;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 200ms linear;
+    padding: 0;
+    margin: 0 -2em 0 0;
+    border-radius: 0;
+
+}
+
+.administrationGroupItem button:hover {
+    background-color: #b55400;
+}
+
+.administrationGroupItem img {
+    height: 2em;
+    filter: invert(255);
+}
+
+.administrationGroupContent {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
