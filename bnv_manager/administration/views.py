@@ -61,7 +61,6 @@ class GroupDeleteView(LoginRequiredMixin, TemplateView):
     template_name = "generic/notallowed.html"
 
     def post(self, request, name="", *args, **kwargs):
-        print(request.user)
         if not request.user.is_superuser:
             return render(request, "generic/notallowed.html")
         try:
