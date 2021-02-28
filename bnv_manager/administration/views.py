@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 
+from generic import ldap
 from generic.mailcow import get_domains
 
 
@@ -33,12 +34,13 @@ class DomainView(LoginRequiredMixin, TemplateView):
         )
 
 
-class ClubView(LoginRequiredMixin, TemplateView):
-    template_name = "administration/clubs.html"
+class ClubOverview(LoginRequiredMixin, TemplateView):
+    template_name = "administration/club_overview.html"
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return render(request, "generic/notallowed.html")
+
         club_list = Group.objects.filter(name__regex=r"^(?!.*superuser).*$")
         return render(request, self.template_name, {"club_list": club_list})
 
@@ -54,6 +56,7 @@ class ClubAddView(LoginRequiredMixin, TemplateView):
         if not created:
             return render(request, "generic/info.html", {"message": "This group already exists."})
         group.save()
+        ldap.add_club(name)
         return redirect("/administration/clubs")
 
 
@@ -69,3 +72,21 @@ class ClubDeleteView(LoginRequiredMixin, TemplateView):
         except Group.DoesNotExist:
             return render(request, "generic/info.html", {"message": "This club does not exist."})
         return redirect("/administration/clubs")
+
+
+class ClubView(LoginRequiredMixin, TemplateView):
+    template_name = "administration/club.html"
+
+    def get(self, request, club="", *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "generic/notallowed.html")
+        return render(request, self.template_name)
+
+
+class AccountOverview(LoginRequiredMixin, TemplateView):
+    template_name = "administration/accounts.html"
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "generic/notallowed.html")
+        return render(request, self.template_name)

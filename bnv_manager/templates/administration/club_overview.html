@@ -17,7 +17,9 @@
         <div class="administrationClubContent">
         {% for club in club_list %}
             <div class="administrationClubItem">
-                {{ club.name }}
+                <a class="administrationClubItemLink" href="/administration/clubs/{{ club.name }}">
+                    {{ club.name }}
+                </a>
                 <form action="/administration/clubs/delete/{{ club.name }}" method="POST">
                      {% csrf_token %}
                     <button><img alt="Delete" src="{% static 'img/delete.svg' %}"></button>
