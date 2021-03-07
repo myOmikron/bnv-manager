@@ -174,7 +174,7 @@ class AccountAdd(LoginRequiredMixin, TemplateView):
             request.POST["password"], is_superuser=True if "superadmin" in request.POST else False
         )
         LDAPBackend().populate_user(request.POST["username"])
-        if "superadmin" in request.POST:
+        if "superadmin" not in request.POST:
             user = User.objects.get(username=request.POST["username"])
             advanced, created = AdvancedUser.objects.get_or_create(user=user)
             if not created:
