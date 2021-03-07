@@ -20,7 +20,7 @@ class AdvancedGroup(models.Model):
 
 class AdvancedUser(models.Model):
     user = OneToOneField(User, on_delete=models.CASCADE)
-    associated_clubs = ManyToManyField(AdvancedGroup)
+    associated_clubs = ManyToManyField(AdvancedGroup, blank=True)
 
     def __str__(self):
         return self.user.username
