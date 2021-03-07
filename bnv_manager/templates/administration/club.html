@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 {% block body %}
+<div class="breadcrumbs">
+    <a href="/">Admin Dashboard</a> / <a href="/administration/clubs">Clubs</a> / <a href="/administration/clubs/{{ club }}">{{ club }}</a>
+</div>
 <h3 class="clubHeading">Manage {{ club }}</h3>
 <div class="clubContent">
 <div class="clubPartContent">

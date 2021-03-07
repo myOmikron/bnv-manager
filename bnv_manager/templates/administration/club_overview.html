@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 {% block body %}
+<div class="breadcrumbs">
+    <a href="/">Admin Dashboard</a> / <a href="/administration/clubs">Clubs</a>
+</div>
 <div class="administrationContent">
     <div class="administrationGroup">
         <form method="POST" action="/administration/clubs/add">
