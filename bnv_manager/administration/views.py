@@ -1,11 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
+from django_auth_ldap.backend import LDAPBackend
 
 from generic import ldap
 from generic.mailcow import get_domains
-from generic.models import AdvancedGroup, Domain
+from generic.models import AdvancedGroup, Domain, AdvancedUser
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -140,4 +141,37 @@ class AccountOverview(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return render(request, "generic/notallowed.html")
-        return render(request, self.template_name)
+        return render(
+            request, self.template_name,
+            {"users": User.objects.all(),
+             "user_names": [x.username for x in User.objects.all()]}
+        )
+
+
+class AccountDelete(LoginRequiredMixin, TemplateView):
+    template_name = "generic/notallowed.html"
+
+    def post(self, request, username="", *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, self.template_name)
+        try:
+            user = User.objects.get(username=username)
+            ldap.del_manager_user(username, user.is_superuser)
+            user.delete()
+        except AdvancedUser.DoesNotExist:
+            return render(request, "generic/info.html", {"info", "User does not exist."})
+        return redirect(f"/administration/accounts")
+
+
+class AccountAdd(LoginRequiredMixin, TemplateView):
+    template_name = "generic/notallowed.html"
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, self.template_name)
+        ldap.add_manager_user(
+            request.POST["username"], request.POST["firstname"], request.POST["lastname"], request.POST["mail"],
+            request.POST["password"], is_superuser=True if "superadmin" in request.POST else False
+        )
+        LDAPBackend().populate_user(request.POST["username"])
+        return redirect(f"/administration/accounts")

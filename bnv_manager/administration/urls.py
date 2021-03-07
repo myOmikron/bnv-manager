@@ -13,4 +13,6 @@ urlpatterns = [
     path("clubs/<str:club>/addDomain/<str:domain>", ClubAddDomain.as_view()),
     path("clubs/<str:club>/removeDomain/<str:domain>", ClubRemoveDomain.as_view()),
     path("accounts", AccountOverview.as_view()),
+    path("accounts/delete/<str:username>", AccountDelete.as_view()),
+    path("accounts/add", AccountAdd.as_view()),
 ]
