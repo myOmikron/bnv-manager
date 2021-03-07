@@ -38,7 +38,6 @@
             <th>Mail</th>
             <th>Superadmin</th>
             <th>Reset Password</th>
-            <th>Modify</th>
             <th>Delete</th>
         </tr>
         {% for user in users %}
@@ -50,12 +49,6 @@
             <td><label><input disabled type="checkbox" {% if user.is_superuser %}checked{% endif %}></label></td>
             <td>
                 <button><img src="{% static 'img/password.svg' %}" alt="Select"></button>
-            </td>
-            <td>
-                <form method="POST" action="/administration/accounts/modify/{{ user.username }}">
-                    {% csrf_token %}
-                    <button><img src="{% static 'img/edit.svg' %}" alt="Select"></button>
-                </form>
             </td>
             <td>
                 <form method="POST" action="/administration/accounts/delete/{{ user.username }}">
