@@ -147,7 +147,7 @@ button:focus {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    margin: 8em 2em 4em;
+    margin: 2em 2em 4em;
 }
 
 .administrationItem {
@@ -325,5 +325,107 @@ button:focus {
     width: 100%;
     justify-content: center;
     align-items: center;
+    margin-top: 2em;
+}
+
+.breadcrumbs {
+    margin-left: 3vw;
     margin-top: 6em;
+}
+
+.breadcrumbs a {
+    outline: none;
+    color: #eeeeee;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 150ms linear;
+}
+
+.breadcrumbs a:hover {
+    color: #b55400;
+}
+
+.accountTable {
+    border-collapse: collapse;
+    border: 1px solid #111111;
+    box-shadow: 4px 4px 4px #111111;
+    margin: 1em;
+}
+
+.tableRow:nth-child(odd) {
+    background-color: #242424;
+}
+
+.tableRow:nth-child(even) {
+    background-color: #2b2b2b;
+}
+
+.tableRow th, td {
+    padding: 0.5em 1em;
+    text-align: center;
+}
+
+.accountAdd {
+    display: flex;
+    flex-direction: column;
+    width: 25em;
+    background-color: #242424;
+    box-shadow: 4px 4px 4px #111111;
+    border: 1px solid #111111;
+    padding: 1em;
+    margin: 1em;
+}
+
+.accountContent {
+    display: flex;
+    flex-direction: row;
+    margin: 2em 2em 4em;
+    justify-content: space-evenly;
+}
+
+.accountContent button {
+    padding-left: 2em;
+    padding-right: 2em;
+}
+
+.accountContent img {
+    filter: invert();
+    width: 1em;
+}
+
+.accountAddPassword {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+#username:hover {
+    border: 1px solid #111111;
+    background-color: #2b2b2b;
+    cursor: not-allowed;
+}
+
+#username:focus {
+    border: 1px solid #111111;
+    background-color: #2b2b2b;
+    cursor: not-allowed;
+}
+
+#superadmin {
+    width: 2em;
+    margin-right: 80%;
+}
+
+@media only screen and (max-width: 1600px) {
+    .accountContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media only screen and (max-width: 1140px) {
+    .accountContent table {
+        font-size: 85%;
+    }
 }
