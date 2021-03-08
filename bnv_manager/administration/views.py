@@ -88,12 +88,15 @@ class ClubView(LoginRequiredMixin, TemplateView):
             club = Group.objects.get(name=club)
             associated_domains = club.advancedgroup.associated_domains.all()
             other_domains = [x for x in get_domains() if x not in [y.name for y in associated_domains]]
+            associated_manager = [x.user for x in AdvancedUser.objects.all() if not x.user.is_superuser and club.name in [y.group.name for y in x.associated_clubs.all()]]
+            other_manager = [x.user for x in AdvancedUser.objects.all() if not x.user.is_superuser and club.name not in [y.group.name for y in x.associated_clubs.all()]]
         except Group.DoesNotExist:
             return render(request, "generic/info.html", {"info": "This club does not exist."})
         return render(
             request,
             self.template_name,
-            {"associated_domains": associated_domains, "other_domains": other_domains, "club": club.name}
+            {"associated_domains": associated_domains, "other_domains": other_domains, "club": club.name,
+             "associated_manager": associated_manager, "other_manager": other_manager}
         )
 
 
@@ -132,6 +135,44 @@ class ClubRemoveDomain(LoginRequiredMixin, TemplateView):
                 return render(request, self.template_name, {"info": "Club does not exist."})
         except Domain.DoesNotExist:
             return render(request, self.template_name, {"info": "Domain does not exist."})
+        return redirect(f"/administration/clubs/{club}")
+
+
+class ClubAddManager(LoginRequiredMixin, TemplateView):
+    template_name = "generic/info.html"
+
+    def post(self, request, club="", manager="", *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "generic/notallowed.html")
+        try:
+            manager = AdvancedUser.objects.get(user__username=manager)
+            try:
+                group = AdvancedGroup.objects.get(group__name=club)
+                manager.associated_clubs.add(group)
+                manager.save()
+            except AdvancedGroup.DoesNotExist:
+                return render(request, self.template_name, {"info": "Club does not exist."})
+        except AdvancedUser.DoesNotExist:
+            return render(request, self.template_name, {"info": "Manager does not exist."})
+        return redirect(f"/administration/clubs/{club}")
+
+
+class ClubRemoveManager(LoginRequiredMixin, TemplateView):
+    template_name = "generic/info.html"
+
+    def post(self, request, club="", manager="", *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "generic/notallowed.html")
+        try:
+            manager = AdvancedUser.objects.get(user__username=manager)
+            try:
+                advanced_group = AdvancedGroup.objects.get(group__name=club)
+                manager.associated_clubs.remove(advanced_group)
+                manager.save()
+            except AdvancedGroup.DoesNotExist:
+                return render(request, self.template_name, {"info": "Club does not exist."})
+        except AdvancedUser.DoesNotExist:
+            return render(request, self.template_name, {"info": "Manager does not exist."})
         return redirect(f"/administration/clubs/{club}")
 
 
