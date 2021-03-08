@@ -108,3 +108,22 @@ def del_manager_user(username, is_superuser=False):
         l.delete_s(f"cn={username},{settings.LDAP_MANAGER_DN}")
     l.unbind_s()
 
+
+def reset_password(username, new_password, is_superuser=False):
+    import ldap.modlist
+    l = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    l.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    new_entry = {"userPassword": [make_secret(new_password)]}
+    if is_superuser:
+        results = l.search_s(f"{settings.LDAP_SUPERUSER_DN}", ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
+        user = [x for x in results if x[0] == f"{username},{settings.LDAP_SUPERUSER_DN}"][0]
+    else:
+        results = l.search_s(f"{settings.LDAP_MANAGER_DN}", ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
+        user = [x for x in results if x[0] == f"cn={username},{settings.LDAP_MANAGER_DN}"][0]
+    old_entry = {"userPassword": user[1]["userPassword"]}
+    modlist = ldap.modlist.modifyModlist(old_entry, new_entry)
+    if is_superuser:
+        l.modify_s(f"cn={username},{settings.LDAP_SUPERUSER_DN}", modlist)
+    else:
+        l.modify_s(f"cn={username},{settings.LDAP_MANAGER_DN}", modlist)
+    l.unbind_s()

@@ -222,3 +222,17 @@ class AccountAdd(LoginRequiredMixin, TemplateView):
                 return render(request, "generic/info.html", {"info": "User already exists."})
             advanced.save()
         return redirect(f"/administration/accounts")
+
+
+class AccountResetPassword(LoginRequiredMixin, TemplateView):
+    template_name = "generic/notallowed.html"
+
+    def post(self, request, user="", *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, self.template_name)
+        try:
+            user = User.objects.get(username=user)
+        except User.DoesNotExist:
+            return render(request, "generic/info.html", {"info": "User does not exist."})
+        ldap.reset_password(user, request.POST["reset_password"], is_superuser=user.is_superuser)
+        return redirect(f"/administration/accounts")

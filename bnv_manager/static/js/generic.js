@@ -26,3 +26,15 @@ function constructUsername(id_username, id_firstname, id_lastname, users) {
     }
     username.value = tmp;
 }
+
+function resetPassword(id_modal, id_form, username) {
+    let modal = document.getElementById(id_modal);
+    modal.style.display = "block";
+    let form = document.getElementById(id_form);
+    form.setAttribute("action", "/administration/accounts/resetPassword/" + username);
+}
+
+function closeModal(id_modal) {
+    let modal = document.getElementById(id_modal);
+    modal.style.display = "none";
+}

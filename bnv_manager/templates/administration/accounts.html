@@ -48,7 +48,7 @@
             <td>{{ user.email }}</td>
             <td><label><input disabled type="checkbox" {% if user.is_superuser %}checked{% endif %}></label></td>
             <td>
-                <button><img src="{% static 'img/password.svg' %}" alt="Select"></button>
+                <button onclick="resetPassword('passwordReset', 'passwordResetForm', '{{ user.username }}')"><img src="{% static 'img/password.svg' %}" alt="Select"></button>
             </td>
             <td>
                 <form method="POST" action="/administration/accounts/delete/{{ user.username }}">
@@ -60,5 +60,25 @@
     {% endfor %}
     </table>
 {% endif %}
+</div>
+<div class="passwordReset" id="passwordReset">
+    <form id="passwordResetForm" method="POST" action="">
+        {% csrf_token %}
+        <div class="passwordResetModal">
+            <div class="rightAligned">
+                <button id="close" type="button" onclick="closeModal('passwordReset')"><img src="{% static 'img/close.svg' %}" alt="Close"></button>
+            </div>
+            <div class="passwordResetContent">
+                <label for="reset_password">Enter new password</label>
+                <div class="flexRow">
+                    <input type="password" id="reset_password" name="reset_password" required>
+                    <button onclick="generatePassword('reset_password');" type="button">
+                        <img src="{% static 'img/random.svg' %}" alt="random">
+                    </button>
+                </div>
+                <button>Reset</button>
+            </div>
+        </div>
+    </form>
 </div>
 {% endblock %}
