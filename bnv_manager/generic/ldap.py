@@ -116,7 +116,7 @@ def reset_password(username, new_password, is_superuser=False):
     new_entry = {"userPassword": [make_secret(new_password)]}
     if is_superuser:
         results = l.search_s(f"{settings.LDAP_SUPERUSER_DN}", ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
-        user = [x for x in results if x[0] == f"{username},{settings.LDAP_SUPERUSER_DN}"][0]
+        user = [x for x in results if x[0] == f"cn={username},{settings.LDAP_SUPERUSER_DN}"][0]
     else:
         results = l.search_s(f"{settings.LDAP_MANAGER_DN}", ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
         user = [x for x in results if x[0] == f"cn={username},{settings.LDAP_MANAGER_DN}"][0]
