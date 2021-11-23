@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import ldap
+from django_auth_ldap.config import GroupOfNamesType, LDAPSearch, LDAPSearchUnion
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -103,7 +106,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -129,3 +131,50 @@ STATICFILES_DIRS = [
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login"
+
+# LDAP Configuration
+AUTHENTICATION_BACKENDS = [
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+# Specify if self-signed TLS should be used without importing CA, comment out if not
+ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+
+AUTH_LDAP_BIND_DN = ""
+AUTH_LDAP_BIND_PASSWORD = ""
+AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
+    LDAPSearch("ou=Users,dc=example,dc=com", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
+)
+
+AUTH_LDAP_CACHE_TIMEOUT = 3600
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "ou=Groups,dc=example,dc=com", ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)"
+)
+AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
+
+# Set both to admin group, grants access to Django database administration
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_staff": "",
+    "is_superuser": "",
+}
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
+
+LDAP_USER_DN = ""
+LDAP_USER_FILTER = "objectClass=inetOrgPerson"
+
+# Internal needed LDAP options
+
+LDAP_MANAGER_DN = "ou=Manager,dc=example,dc=com"
+LDAP_SUPERUSER_DN = "ou=Admins,dc=example,dc=com"
+
+LDAP_GROUP_DN = "ou=Groups,dc=example,dc=com"
+LDAP_GROUP_FILTER = "objectClass=groupOfNames"
+
+# Mailcow Configuration
+MAILCOW_API_URI = ""
+MAILCOW_API_KEY = ""
