@@ -1,0 +1,80 @@
+:root {
+    --level-0: #1a1a1a;
+    --level-1: #242424;
+    --level-2: #2d2d2d;
+    --level-3: #343434;
+    --level-4: #3a3a3a;
+    --text-disabled: #8f8f8f;
+    --text: #f1f1f1;
+    --prim: #b55400;
+    --prim-light: #ff9740;
+}
+
+body {
+    margin: 0;
+    background-color: var(--level-0);
+    color: var(--text);
+    font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+}
+
+* .centered {
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+    display: flex;
+    width: 100vw;
+}
+
+.button {
+    padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--prim);
+    color: black;
+    transition: all ease-in-out 200ms;
+}
+
+.button:hover {
+    background-color: var(--prim-light);
+}
+
+.button:active {
+    transform: translateY(2px) translateX(-2px);
+}
+
+.input {
+    background-color: var(--level-0);
+    border: 2px solid var(--level-3);
+    border-radius: 5px;
+    color: var(--text);
+    padding: 0.25rem;
+    transition: all ease-in-out 200ms;
+}
+
+.input:hover {
+    border: 2px solid var(--prim);
+}
+
+.input:focus {
+    border: 2px solid var(--prim);
+}
+
+/*
+Login Declaration
+ */
+.loginContent {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.loginBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+    background-color: var(--level-1);
+}
