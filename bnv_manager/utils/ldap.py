@@ -46,7 +46,7 @@ def del_user(dn):
 def set_password(dn, password):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
-    new_entry = {"userPassword": [hash_password(password)]}
+    new_entry = {"userPassword": [hash_password(password).encode("utf-8")]}
     results = conn.search_s(dn, ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
     user = results[0]
     old_entry = {"userPassword": user[1]["userPassword"]}
