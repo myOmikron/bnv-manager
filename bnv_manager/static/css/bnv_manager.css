@@ -24,7 +24,10 @@ body {
 
 .content {
     display: flex;
-    width: 100vw;
+    flex-direction: column;
+    margin-left: 20rem;
+    padding-top: 2rem;
+    padding-left: 2rem;
 }
 
 .button {
@@ -77,4 +80,41 @@ Login Declaration
     justify-content: center;
     padding: 2rem;
     background-color: var(--level-1);
+}
+
+/*
+Other
+ */
+
+.aliasTable {
+    max-width: 20rem;
+    border-collapse: collapse;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+}
+
+.aliasTable tr:nth-child(even) {
+    background-color: var(--level-2);
+}
+
+.aliasTable tr:nth-child(odd) {
+    background-color: var(--level-3);
+}
+
+.iconLink {
+    background-color: var(--level-1);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text);
+    width: 100%;
+}
+
+.iconLink img {
+    width: 1.25rem;
+    filter: invert();
+}
+
+.flexColumn {
 }

@@ -129,6 +129,15 @@ STATICFILES_DIRS = [
     "/var/www/html/static/"
 ]
 
+# Logging
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {"django_auth_ldap": {"level": "DEBUG", "handlers": ["console"]}},
+}
+
+LOGIN_URL = "/login"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login"
 
@@ -137,13 +146,21 @@ AUTHENTICATION_BACKENDS = [
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+AUTH_LDAP_SERVER_URI = ""
+
 # Specify if self-signed TLS should be used without importing CA, comment out if not
 ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
-AUTH_LDAP_BIND_DN = ""
-AUTH_LDAP_BIND_PASSWORD = ""
+AUTH_LDAP_BIND_DN = "cn=admin,dc=example,dc=com"
+AUTH_LDAP_BIND_PASSWORD = "change_me"
+
+AUTH_LDAP_USER_BASE = "ou=Users,dc=example,dc=com"
+AUTH_LDAP_ADMIN_BASE = "ou=AdminUsers,dc=example,dc=com"
 AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
-    LDAPSearch("ou=Users,dc=example,dc=com", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
+    LDAPSearch(AUTH_LDAP_ADMIN_BASE, ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
+    # LDAPSearch("ou=Clubadmins,dc=buergernetz,dc=de", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
+    LDAPSearch(AUTH_LDAP_USER_BASE, ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
 )
 
 AUTH_LDAP_CACHE_TIMEOUT = 3600
@@ -154,8 +171,8 @@ AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
 
 # Set both to admin group, grants access to Django database administration
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-    "is_staff": "",
-    "is_superuser": "",
+    "is_staff": "cn=superadmins,ou=Groups,dc=example,dc=com",
+    "is_superuser": "cn=superadmins,ou=Groups,dc=example,dc=com",
 }
 
 AUTH_LDAP_USER_ATTR_MAP = {
@@ -168,10 +185,6 @@ LDAP_USER_DN = ""
 LDAP_USER_FILTER = "objectClass=inetOrgPerson"
 
 # Internal needed LDAP options
-
-LDAP_MANAGER_DN = "ou=Manager,dc=example,dc=com"
-LDAP_SUPERUSER_DN = "ou=Admins,dc=example,dc=com"
-
 LDAP_GROUP_DN = "ou=Groups,dc=example,dc=com"
 LDAP_GROUP_FILTER = "objectClass=groupOfNames"
 

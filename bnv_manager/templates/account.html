@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <h2>Account Management</h2>
+{% if request.user.is_superuser and is_club_admin or not request.user.is_superuser %}
+
+    <h3>Current aliases</h3>
+    {% if aliases %}
+    <table class="aliasTable">
+    {% for alias in aliases %}
+        <tr>
+            <td>{{ alias.address }}</td>
+            <td>
+                <form method="POST" action="/user/deleteAlias">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{ alias.id }}" name="alias">
+                    <button class="iconLink"><img src="{% static 'img/delete.svg' %}" alt="Delete"></button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    {% else %}
+        <p>There are no aliases yet!</p>
+    {% endif %}
+
+{% endif %}
+    <h3>Password Reset</h3>
+    <form method="POST" action="/user/resetPassword" class="flexColumn">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td><label for="oldPW">Old password</label></td>
+                <td><input id="oldPW" name="oldPW" type="password" class="input" required></td>
+            </tr>
+            <tr>
+                <td><label for="newPW">New password</label></td>
+                <td><input id="newPW" name="newPW" type="password" class="input" required></td>
+            </tr>
+            <tr>
+                <td><label for="repeatNewPW">Repeat new password</label></td>
+                <td><input id="repeatNewPW" name="repeatNewPW" type="password" class="input" required></td>
+            </tr>
+        </table>
+        <button class="button">Reset</button>
+    </form>
+{% endblock %}
