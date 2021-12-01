@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
@@ -50,4 +52,32 @@ class DeleteAlias(LoginRequiredMixin, View):
             utils.mailcow.del_alias(alias_id)
         else:
             return render(request, "utils/referrer.html", {"msg": "You don't have the permission to delete this alias"})
+        return redirect("/")
+
+
+class CreateAlias(LoginRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        alias = request.POST["alias"]
+        if not re.match(r'\b[A-Za-z0-9._%+-]+\b', alias):
+            return render(request, "utils/referrer.html", {"msg": "You entered an invalid front-part!"})
+        user_mail = request.user.ldap_user.attrs["mail"][0]
+        if alias in [
+            x["address"].split("@")[0] for x
+            in utils.mailcow.get_aliases(filter_domain=user_mail.split("@")[1])
+        ]:
+            return render(
+                request, "utils/referrer.html",
+                {"msg": "There is already an alias registered with that front-part!"}
+            )
+        if alias in [
+            x[1]["mail"][0].decode("utf-8").split("@")[0] for x
+            in utils.ldap.get_user()
+            if x[1]["mail"][0].decode("utf-8").split("@")[1] == user_mail.split("@")[1]
+        ]:
+            return render(
+                request, "utils/referrer.html",
+                {"msg": "There is already a mailbox registered with that front-part!"}
+            )
+        utils.mailcow.add_alias(request.user.ldap_user.attrs["mail"][0], f"{alias}@{user_mail.split('@')[1]}")
         return redirect("/")

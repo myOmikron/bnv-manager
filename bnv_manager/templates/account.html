@@ -25,6 +25,13 @@
     {% else %}
         <p>There are no aliases yet!</p>
     {% endif %}
+    <h3>Create alias</h3>
+    <form method="POST" action="/user/createAlias">
+        {% csrf_token %}
+        <label>Alias: <input id="createAlias" name="alias" class="input" required></label><br>
+        <pre>Just enter the front-part, @domain.com is added automatically!</pre>
+        <button class="button">Create alias</button>
+    </form>
 
 {% endif %}
     <h3>Password Reset</h3>

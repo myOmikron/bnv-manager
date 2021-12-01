@@ -11,4 +11,5 @@ urlpatterns = [
     # Account functionality
     path('user/resetPassword', ResetPassword.as_view()),
     path('user/deleteAlias', DeleteAlias.as_view()),
+    path('user/createAlias', CreateAlias.as_view()),
 ]

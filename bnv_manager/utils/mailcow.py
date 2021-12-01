@@ -43,9 +43,12 @@ def del_alias(alias_id):
     return True if ret.status_code == 200 else False
 
 
-def get_aliases(filter_mail=""):
+def get_aliases(filter_mail="", filter_domain=""):
     ret = requests.get(join(settings.MAILCOW_API_URI, "api/v1/get/alias/all"), headers=header)
     aliases = json.loads(ret.text)
     if filter_mail:
         return [x for x in aliases if x["goto"] == filter_mail]
+    if filter_domain:
+        print(aliases)
+        return [x for x in aliases if x["goto"].endswith(filter_domain) and x["address"].endswith(filter_domain)]
     return aliases
