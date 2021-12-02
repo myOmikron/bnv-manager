@@ -66,6 +66,42 @@ body {
 }
 
 /*
+Menu Declaration
+ */
+
+.sideMenu {
+    text-align: center;
+    background-color: var(--level-1);
+    width: 20rem;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+}
+
+.menu:last-child {
+    border-bottom: 1px solid var(--level-0);
+}
+
+.clickable {
+    display: flex;
+    cursor: pointer;
+    padding: 1rem 0 1rem 2rem;
+    border-top: 1px solid var(--level-0);
+    background-color: var(--level-1);
+    transition: all ease-in-out 200ms;
+}
+
+.clickable:hover     {
+    background-color: var(--level-2);
+}
+
+/*
 Login Declaration
  */
 .loginContent {
