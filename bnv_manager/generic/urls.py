@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 
+import superadministration.urls
 from generic.views import *
 
 
@@ -12,4 +13,7 @@ urlpatterns = [
     path('user/resetPassword', ResetPassword.as_view()),
     path('user/deleteAlias', DeleteAlias.as_view()),
     path('user/createAlias', CreateAlias.as_view()),
+
+    # Other
+    path('admin-management/', include(superadministration.urls))
 ]

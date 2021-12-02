@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<h2>Management for Club: {{ club.name }}</h2>
+<h3>Delete club</h3>
+<form method="POST" action="/admin-management/deleteClub">
+{% csrf_token %}
+<input type="hidden" value="{{ club.id }}" name="club">
+<button class="button">Delete Club</button>
+</form>
+{% endblock %}

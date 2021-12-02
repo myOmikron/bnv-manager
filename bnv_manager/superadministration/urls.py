@@ -1,0 +1,12 @@
+from django.urls import path
+
+from superadministration.views import *
+
+
+urlpatterns = [
+    path('', DashboardView.as_view()),
+    path('createClub', CreateClubView.as_view()),
+    path('deleteClub', DeleteClubView.as_view()),
+
+    path('clubs/<str:club_id>/', AdminClubManagement.as_view()),
+]

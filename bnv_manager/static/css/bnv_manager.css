@@ -115,3 +115,27 @@ Other
     width: 1.25rem;
     filter: invert();
 }
+
+.clubContent {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.clubBox {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--level-1);
+    border: 1px solid black;
+    height: 3rem;
+    width: 20rem;
+    margin: 0 2rem 2rem 0;
+    transition: all ease-in-out 200ms;
+}
+
+.clubBox:hover {
+    cursor: pointer;
+    background-color: var(--level-2);
+}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h2>Clubs</h2>
+<h3>Create new club</h3>
+<form method="POST" action="/admin-management/createClub">
+{% csrf_token %}
+    <label>Name: <input class="input" name="club" required></label>
+    <button class="button">Create</button>
+</form>
+
+<h3>Available clubs</h3>
+{% if clubs %}
+<div class="clubContent">
+{% for club in clubs %}
+    <div class="clubBox" onclick="document.location = '/admin-management/clubs/{{ club.id }}/'">
+        {{ club.name }}
+    </div>
+{% endfor %}
+</div>
+{% else %}
+    <p>There are no clubs yet!</p>
+{% endif %}
+{% endblock %}
