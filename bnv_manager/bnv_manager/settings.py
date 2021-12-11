@@ -157,9 +157,10 @@ AUTH_LDAP_BIND_PASSWORD = "change_me"
 
 AUTH_LDAP_USER_BASE = "ou=Users,dc=example,dc=com"
 AUTH_LDAP_ADMIN_BASE = "ou=AdminUsers,dc=example,dc=com"
+AUTH_LDAP_CLUB_ADMIN_BASE = ""
 AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
     LDAPSearch(AUTH_LDAP_ADMIN_BASE, ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
-    # LDAPSearch("ou=Clubadmins,dc=buergernetz,dc=de", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
+    LDAPSearch(AUTH_LDAP_CLUB_ADMIN_BASE, ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
     LDAPSearch(AUTH_LDAP_USER_BASE, ldap.SCOPE_SUBTREE, "(cn=%(user)s)"),
 )
 
