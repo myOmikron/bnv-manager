@@ -4,7 +4,7 @@
 {% block content %}
 
     <h2>Account Management</h2>
-{% if request.user.is_superuser and is_club_admin or not request.user.is_superuser %}
+{% if not request.user.is_superuser and not is_club_admin %}
 
     <h3>Current aliases</h3>
     {% if aliases %}

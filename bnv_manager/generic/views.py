@@ -25,7 +25,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "account.html"
 
     def get(self, request, *args, **kwargs):
-        is_club_admin = any(models.Club.objects.filter(associated_managers__username=request.user.username))
+        is_club_admin = any([x for x in utils.ldap.get_club_admins() if x["username"] == request.user.username])
         aliases = utils.mailcow.get_aliases(request.user.ldap_user.attrs["mail"][0])
         return render(request, self.template_name, {"is_club_admin": is_club_admin, "aliases": aliases})
 
