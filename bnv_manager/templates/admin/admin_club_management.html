@@ -28,7 +28,7 @@
             <form method="POST" action="/admin-management/removeClubAdmin">
                 {% csrf_token %}
                 <input type="hidden" name="dn" value="{{ user.dn }}">
-                <input type="hidden" name="club" value="{{ club.abbreviation }}">
+                <input type="hidden" name="abbreviation" value="{{ club.abbreviation }}">
                 <button class="button">Remove</button>
             </form>
         </td>
@@ -61,6 +61,46 @@
                 {% csrf_token %}
                 <input type="hidden" name="dn" value="{{ user.dn }}">
                 <input type="hidden" name="abbreviation" value="{{ club.abbreviation }}">
+                <button class="button">Add</button>
+            </form>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+<h3>Associated domains</h3>
+<table class="table littleTable">
+    <tr>
+        <th>Domain</th>
+        <th>Remove from club</th>
+    </tr>
+{% for domain in domains %}
+    <tr>
+        <td>{{ domain.domain }}</td>
+        <td>
+            <form method="POST" action="/admin-management/removeDomain">
+                {% csrf_token %}
+                <input type="hidden" name="club" value="{{ club.id }}">
+                <input type="hidden" name="domain" value="{{ domain.domain }}">
+                <button class="button">Remove</button>
+            </form>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+<h3>Unassociated domains</h3>
+<table class="table littleTable">
+    <tr>
+        <th>Domain</th>
+        <th>Remove from club</th>
+    </tr>
+{% for domain in other_domains %}
+    <tr>
+        <td>{{ domain.domain }}</td>
+        <td>
+            <form method="POST" action="/admin-management/addDomain">
+                {% csrf_token %}
+                <input type="hidden" name="club" value="{{ club.id }}">
+                <input type="hidden" name="domain" value="{{ domain.domain }}">
                 <button class="button">Add</button>
             </form>
         </td>

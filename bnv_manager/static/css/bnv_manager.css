@@ -28,6 +28,7 @@ body {
     margin-left: 20rem;
     padding-top: 2rem;
     padding-left: 2rem;
+    padding-bottom: 2rem;
 }
 
 .button {
@@ -195,6 +196,10 @@ Other
 .table tr td,
 .table tr th {
     padding: 0.5rem 1rem 0.5rem 1rem;
+}
+
+.littleTable {
+    max-width: 40rem !important;
 }
 
 .flexRow {

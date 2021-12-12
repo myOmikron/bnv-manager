@@ -4,6 +4,7 @@ from os.path import join
 import requests
 
 from bnv_manager import settings
+from generic.models import Domain
 from utils.ldap import hash_password
 
 header = {"X-API-Key": settings.MAILCOW_API_KEY}
@@ -49,6 +50,42 @@ def get_aliases(filter_mail="", filter_domain=""):
     if filter_mail:
         return [x for x in aliases if x["goto"] == filter_mail]
     if filter_domain:
-        print(aliases)
         return [x for x in aliases if x["goto"].endswith(filter_domain) and x["address"].endswith(filter_domain)]
     return aliases
+
+
+def get_domains():
+    ret = requests.get(join(settings.MAILCOW_API_URI, "api/v1/get/domain/all"), headers=header)
+    if ret.status_code == 200:
+        domains = [x["domain_name"] for x in json.loads(ret.text)]
+        db_domains = []
+        for domain in domains:
+            d, created = Domain.objects.get_or_create(domain=domain)
+            db_domains.append(d)
+        for x in Domain.objects.all():
+            if x.domain not in domains:
+                x.delete()
+        return db_domains
+
+
+def create_domain_admin(username, domains, password):
+    data = {
+        "username": username,
+        "domains": domains,
+        "password": password,
+        "password2": password,
+        "active": "1"
+    }
+    ret = requests.post(join(settings.MAILCOW_API_URI, "api/v1/add/domain-admin"), json=data, headers=header)
+    return True if ret.status_code == 200 else False
+
+
+def get_domain_admins():
+    ret = requests.get(join(settings.MAILCOW_API_URI, "api/v1/get/domain-admin/all"), headers=header)
+    if ret.status_code == 200:
+        return json.loads(ret.text)
+
+
+def del_domain_admin(username):
+    ret = requests.post(join(settings.MAILCOW_API_URI, "api/v1/delete/domain-admin"), json=[username], headers=header)
+    return True if ret.status_code == 200 else False

@@ -13,5 +13,8 @@ urlpatterns = [
 
     path('createClubAdmin', CreateClubAdmin.as_view()),
 
+    path('addDomain', AddDomain.as_view()),
+    path('removeDomain', RemoveDomain.as_view()),
+
     path('clubs/<str:club_id>/', AdminClubManagement.as_view()),
 ]

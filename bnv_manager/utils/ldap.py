@@ -135,3 +135,12 @@ def generate_username(firstname, surname):
         username = f"{firstname.lower()}.{surname.lower()}{counter}"
         counter += 1
     return username
+
+
+def get_hash_for_user(dn):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    result = conn.read_s(dn)
+    conn.unbind_s()
+    return result.get("userPassword")[0].decode("utf-8")
+
