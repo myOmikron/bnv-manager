@@ -89,3 +89,16 @@ def get_domain_admins():
 def del_domain_admin(username):
     ret = requests.post(join(settings.MAILCOW_API_URI, "api/v1/delete/domain-admin"), json=[username], headers=header)
     return True if ret.status_code == 200 else False
+
+
+def set_domain_for_domain_admin(username, domains):
+    data = {
+        "items": [
+            username
+        ],
+        "attr": {
+            "domains": domains
+        }
+    }
+    ret = requests.post(join(settings.MAILCOW_API_URI, "api/v1/edit/domain-admin"), json=data, headers=header)
+    return True if ret.status_code == 200 else False
