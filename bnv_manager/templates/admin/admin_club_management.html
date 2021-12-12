@@ -112,5 +112,6 @@
 {% csrf_token %}
 <input type="hidden" value="{{ club.id }}" name="club">
 <button class="button">Delete Club</button>
+<pre class="red">CAUTION! This will delete all mailboxes as well as all corresponding domain admins!</pre>
 </form>
 {% endblock %}
