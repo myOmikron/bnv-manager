@@ -41,6 +41,7 @@ def del_user(dn):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
     conn.delete_s(dn)
+    conn.unbind_s()
 
 
 def set_password(dn, password):
@@ -55,18 +56,68 @@ def set_password(dn, password):
     conn.unbind_s()
 
 
-def get_club_admins(club=None):
+def get_club_admins(club=None, invert=False):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
     if club:
         search = f"(&(objectClass=inetOrgPerson)(memberOf=cn={club},{settings.LDAP_GROUP_DN}))"
+        if invert:
+            search = f"(&(objectClass=inetOrgPerson)(!(memberOf=cn={club},{settings.LDAP_GROUP_DN})))"
         results = conn.search_s(settings.AUTH_LDAP_CLUB_ADMIN_BASE, ldap.SCOPE_SUBTREE, search)
     else:
         results = conn.search_s(settings.AUTH_LDAP_CLUB_ADMIN_BASE, ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
     conn.unbind_s()
     return [{
-            "dn": x[0],
-            "username": x[1]["cn"][0].decode("utf-8"),
-            "firstname": x[1]["givenName"][0].decode("utf-8"),
-            "surname": x[1]["sn"][0].decode("utf-8"),
-        } for x in results]
+        "dn": x[0],
+        "username": x[1]["cn"][0].decode("utf-8"),
+        "firstname": x[1]["givenName"][0].decode("utf-8"),
+        "surname": x[1]["sn"][0].decode("utf-8"),
+    } for x in results]
+
+
+def add_users_to_group(user_dns: list, group):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    results = conn.search_s(
+        settings.LDAP_GROUP_DN,
+        ldap.SCOPE_SUBTREE,
+        f"(&(cn={group})(objectClass=groupOfNames))"
+    )
+    dn = f"cn={group},{settings.LDAP_GROUP_DN}"
+    if len(results) == 0:
+        # Create group if not existent
+        mod_list = ldap.modlist.addModlist(
+            {
+                "cn": [group.encode("utf-8")],
+                "member": [x.encode("utf-8") for x in user_dns],
+                "objectClass": ["groupOfNames".encode("utf-8"), "top".encode("utf-8")],
+            }
+        )
+        conn.add_s(dn, modlist=mod_list)
+    else:
+        old_entry = {"member": results[0][1]["member"]}
+        new_entry = {"member": list({*old_entry["member"], *[x.encode("utf-8") for x in user_dns]})}
+        mod_list = ldap.modlist.modifyModlist(old_entry, new_entry)
+        conn.modify_s(dn, mod_list)
+    conn.unbind_s()
+
+
+def remove_users_from_group(user_dns, group):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    results = conn.search_s(
+        settings.LDAP_GROUP_DN,
+        ldap.SCOPE_SUBTREE,
+        f"(&(cn={group})(objectClass=groupOfNames))"
+    )
+    dn = f"cn={group},{settings.LDAP_GROUP_DN}"
+    encoded_dns = [y.encode("utf-8") for y in user_dns]
+    for group in results:
+        old_entry = {"member": group[1]["member"]}
+        new_entry = {"member": [x for x in old_entry["member"] if x not in encoded_dns]}
+        if len(new_entry["member"]) == 0:
+            conn.delete_s(dn)
+        else:
+            mod_list = ldap.modlist.modifyModlist(old_entry, new_entry)
+            conn.modify_s(dn, mod_list)
+    conn.unbind_s()

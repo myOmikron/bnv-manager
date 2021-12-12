@@ -8,5 +8,8 @@ urlpatterns = [
     path('createClub', CreateClubView.as_view()),
     path('deleteClub', DeleteClubView.as_view()),
 
+    path('removeClubAdmin', RemoveClubAdminFromClub.as_view()),
+    path('addClubAdmin', AddClubAdminToClub.as_view()),
+
     path('clubs/<str:club_id>/', AdminClubManagement.as_view()),
 ]

@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 
+from bnv_manager import settings
 from generic.models import Club
 
 import utils.ldap
@@ -62,7 +63,30 @@ class AdminClubManagement(LoginRequiredMixin, TemplateView):
         except Club.DoesNotExist:
             return render(request, "utils/referrer.html", {"msg": f"Club with id {club_id} does not exist!"})
         club_admins = utils.ldap.get_club_admins(club=club.abbreviation)
+        other_club_admins = utils.ldap.get_club_admins(club=club.abbreviation, invert=True)
         return render(request, self.template_name, {
             "club": club,
-            "club_admins": club_admins
+            "club_admins": club_admins,
+            "other_club_admins": other_club_admins
         })
+
+
+class RemoveClubAdminFromClub(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+        utils.ldap.remove_users_from_group(
+            [request.POST["dn"]],
+            request.POST["club"]
+        )
+        return redirect(request.META["HTTP_REFERER"])
+
+
+class AddClubAdminToClub(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+        dn = request.POST["dn"]
+        abbreviation = request.POST["abbreviation"]
+        utils.ldap.add_users_to_group([dn], abbreviation)
+        return redirect(request.META["HTTP_REFERER"])
