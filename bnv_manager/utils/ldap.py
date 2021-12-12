@@ -53,3 +53,20 @@ def set_password(dn, password):
     mod_list = ldap.modlist.modifyModlist(old_entry, new_entry)
     conn.modify_s(dn, mod_list)
     conn.unbind_s()
+
+
+def get_club_admins(club=None):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    if club:
+        search = f"(&(objectClass=inetOrgPerson)(memberOf=cn={club},{settings.LDAP_GROUP_DN}))"
+        results = conn.search_s(settings.AUTH_LDAP_CLUB_ADMIN_BASE, ldap.SCOPE_SUBTREE, search)
+    else:
+        results = conn.search_s(settings.AUTH_LDAP_CLUB_ADMIN_BASE, ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
+    conn.unbind_s()
+    return [{
+            "dn": x[0],
+            "username": x[1]["cn"][0].decode("utf-8"),
+            "firstname": x[1]["givenName"][0].decode("utf-8"),
+            "surname": x[1]["sn"][0].decode("utf-8"),
+        } for x in results]

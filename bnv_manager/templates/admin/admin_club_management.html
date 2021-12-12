@@ -3,6 +3,38 @@
 {% block content %}
 
 <h2>Management for Club: {{ club.name }}</h2>
+<h3>Current club admins</h3>
+<table class="table">
+    <tr>
+        <th>Username</th>
+        <th>Firstname</th>
+        <th>Surname</th>
+        <th>Reset password</th>
+        <th>Remove from club</th>
+    </tr>
+{% for user in club_admins %}
+    <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.firstname }}</td>
+        <td>{{ user.surname }}</td>
+        <td>
+            <form method="POST" action="/admin-management/resetUserPassword">
+                {% csrf_token %}
+                <input type="hidden" name="dn" value="{{ user.dn }}">
+                <button class="button">Reset</button>
+            </form>
+        </td>
+        <td>
+            <form method="POST" action="/admin-management/removeClubAdmin">
+                {% csrf_token %}
+                <input type="hidden" name="dn" value="{{ user.dn }}">
+                <input type="hidden" name="club" value="{{ club.id }}">
+                <button class="button"><img src="{% static 'delete.svg' %}" alt="Delete"></button>
+            </form>
+        </td>
+    </tr>
+{% endfor %}
+</table>
 <h3>Delete club</h3>
 <form method="POST" action="/admin-management/deleteClub">
 {% csrf_token %}

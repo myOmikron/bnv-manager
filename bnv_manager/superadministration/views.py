@@ -61,4 +61,8 @@ class AdminClubManagement(LoginRequiredMixin, TemplateView):
             club = Club.objects.get(id=club_id)
         except Club.DoesNotExist:
             return render(request, "utils/referrer.html", {"msg": f"Club with id {club_id} does not exist!"})
-        return render(request, self.template_name, {"club": club})
+        club_admins = utils.ldap.get_club_admins(club=club.abbreviation)
+        return render(request, self.template_name, {
+            "club": club,
+            "club_admins": club_admins
+        })
