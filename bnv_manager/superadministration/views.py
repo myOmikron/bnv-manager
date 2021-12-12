@@ -150,6 +150,15 @@ class AddDomain(LoginRequiredMixin, View):
             domain = Domain.objects.get(domain=domain_name)
         except Domain.DoesNotExist:
             return render(request, "utils/referrer.html", {"msg": f"There is no such domain"})
+        club_admins = utils.ldap.get_club_admins(club.name)
+        club_admin_usernames = [x["username"] for x in club_admins]
+        domain_admins = [x for x in utils.mailcow.get_domain_admins() if x["username"] in club_admin_usernames]
+        for x in domain_admins:
+            utils.mailcow.set_domain_for_domain_admin(x["username"], [*x["selected_domains"], domain.domain])
+        associated_domains = club.associated_domains.all()
+        if not any(associated_domains):
+            for x in club_admins:
+                utils.mailcow.create_domain_admin(x["username"], domain.domain, utils.ldap.get_hash_for_user(x["dn"]))
         club.associated_domains.add(domain)
         return redirect(request.META["HTTP_REFERER"])
 
@@ -169,5 +178,12 @@ class RemoveDomain(LoginRequiredMixin, View):
         except Domain.DoesNotExist:
             return render(request, "utils/referrer.html", {"msg": f"There is no such domain"})
         club.associated_domains.remove(domain)
+        club_admins = utils.ldap.get_club_admins(club.name)
+        domains = [x.domain for x in club.associated_domains.all()]
+        if any(domains):
+            for x in club_admins:
+                utils.mailcow.set_domain_for_domain_admin(x["username"], domains)
+        else:
+            for x in club_admins:
+                utils.mailcow.del_domain_admin(x["username"])
         return redirect(request.META["HTTP_REFERER"])
-
