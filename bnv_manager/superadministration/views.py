@@ -1,9 +1,13 @@
+import re
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 
 from generic.models import Club
+
+import utils.ldap
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -22,9 +26,14 @@ class CreateClubView(LoginRequiredMixin, View):
         if not request.user.is_superuser:
             return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this!"})
         club = request.POST["club"]
+        abbreviation = request.POST["abbreviation"]
+        if not re.match(r"^[a-zA-Z0-9]+$", abbreviation):
+            return render(request, "utils/referrer.html", {"msg": "Abbreviation contains an disallowed character"})
         new_club, created = Club.objects.get_or_create(name=club)
         if not created:
             return render(request, "utils/referrer.html", {"msg": "There is already a club with that name!"})
+        new_club.abbreviation = abbreviation
+        new_club.save()
         return redirect("/admin-management/")
 
 

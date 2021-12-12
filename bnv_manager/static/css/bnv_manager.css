@@ -175,3 +175,24 @@ Other
     cursor: pointer;
     background-color: var(--level-2);
 }
+
+.table {
+    max-width: 80rem;
+    border-collapse: collapse;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+}
+
+.table tr:nth-child(even) {
+    background-color: var(--level-1);
+}
+
+.table tr:nth-child(odd) {
+    background-color: var(--level-2);
+}
+
+.table tr td,
+.table tr th {
+    padding: 0.5rem 1rem 0.5rem 1rem;
+}
