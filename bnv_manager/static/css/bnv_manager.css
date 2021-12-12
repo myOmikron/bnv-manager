@@ -196,3 +196,12 @@ Other
 .table tr th {
     padding: 0.5rem 1rem 0.5rem 1rem;
 }
+
+.flexRow {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flexRowBox {
+    margin: 0 3rem 3rem 3rem;
+}

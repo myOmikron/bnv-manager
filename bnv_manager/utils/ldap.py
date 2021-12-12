@@ -10,7 +10,7 @@ def hash_password(password):
     return f"{{CRYPT}}{hashed.decode('utf-8')}"
 
 
-def add_user(username, firstname, lastname, mail, password):
+def add_user(username, firstname, lastname, mail, password, dn):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
     mod_list = ldap.modlist.addModlist(
@@ -23,7 +23,7 @@ def add_user(username, firstname, lastname, mail, password):
             "userPassword": [hash_password(password).encode("utf-8")],
         }
     )
-    dn = f"cn={username},{settings.LDAP_USER_DN}"
+    dn = f"cn={username},{dn}"
     conn.add_s(dn, modlist=mod_list)
     conn.unbind_s()
     return dn
@@ -121,3 +121,17 @@ def remove_users_from_group(user_dns, group):
             mod_list = ldap.modlist.modifyModlist(old_entry, new_entry)
             conn.modify_s(dn, mod_list)
     conn.unbind_s()
+
+
+def generate_username(firstname, surname):
+    username = f"{firstname.lower()}.{surname.lower()}"
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    results = conn.search_s(settings.LDAP_GLOBAL_SEARCH_BASE, ldap.SCOPE_SUBTREE, f"(cn={username}*)")
+    conn.unbind_s()
+    cns = [x[0].split(",")[0] for x in results if x[0].split(",")[0].startswith(f"cn={username}")]
+    counter = 1
+    while f"cn={username}" in cns:
+        username = f"{firstname.lower()}.{surname.lower()}{counter}"
+        counter += 1
+    return username

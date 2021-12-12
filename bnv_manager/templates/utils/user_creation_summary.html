@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flexRow">
+    <div class="flexColumn">
+        <h3>Following user has been created:</h3>
+        <table class="table">
+            <tr>
+                <td>Username</td>
+                <td>{{ username }}</td>
+            </tr>
+            <tr>
+                <td>Firstname</td>
+                <td>{{ firstname }}</td>
+            </tr>
+            <tr>
+                <td>Surname</td>
+                <td>{{ surname }}</td>
+            </tr>
+            <tr>
+                <td>Mail</td>
+                <td>{{ mail }}</td>
+            </tr>
+        </table>
+        <a class="menuLink" href="{{ referer }}"><h4>Take me back</h4></a>
+    </div>
+</div>
+{% endblock %}

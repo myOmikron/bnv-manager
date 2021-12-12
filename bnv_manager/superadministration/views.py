@@ -90,3 +90,24 @@ class AddClubAdminToClub(LoginRequiredMixin, View):
         abbreviation = request.POST["abbreviation"]
         utils.ldap.add_users_to_group([dn], abbreviation)
         return redirect(request.META["HTTP_REFERER"])
+
+
+class CreateClubAdmin(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+        firstname = request.POST["firstname"]
+        surname = request.POST["surname"]
+        mail = request.POST["mail"]
+        password = request.POST["password"]
+        if not firstname or not surname or not mail or not password:
+            return render(request, "utils/referrer.html", {"msg": "Please fill out every field"})
+        username = utils.ldap.generate_username(firstname, surname)
+        utils.ldap.add_user(username, firstname, surname, mail, password, settings.AUTH_LDAP_CLUB_ADMIN_BASE)
+        return render(request, "utils/user_creation_summary.html", {
+            "referer": request.META["HTTP_REFERER"],
+            "username": username,
+            "firstname": firstname,
+            "surname": surname,
+            "mail": mail
+        })

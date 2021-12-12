@@ -187,6 +187,7 @@ LDAP_USER_FILTER = "objectClass=inetOrgPerson"
 
 # Internal needed LDAP options
 LDAP_GROUP_DN = "ou=Groups,dc=example,dc=com"
+LDAP_GLOBAL_SEARCH_BASE = ""
 LDAP_GROUP_FILTER = "objectClass=groupOfNames"
 
 # Mailcow Configuration
