@@ -24,6 +24,7 @@ def add_mailbox(firstname, lastname, mail, password):
         "tls_enforce_in": "1",
         "tls_enforce_out": "1"
     }
+    print(data)
     ret = requests.post(join(settings.MAILCOW_API_URI, "api/v1/add/mailbox"), json=data, headers=header)
     return True if ret.status_code == 200 else False
 

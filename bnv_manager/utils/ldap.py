@@ -100,6 +100,15 @@ def get_club_users(club):
     ]
 
 
+def check_unique_mail(mail):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    search = f"(&(objectClass=inetOrgPerson)(mail={mail}))"
+    results = conn.search_s(settings.LDAP_GLOBAL_SEARCH_BASE, ldap.SCOPE_SUBTREE, search)
+    conn.unbind_s()
+    return not any(results)
+
+
 def add_users_to_group(user_dns: list, group):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
@@ -123,7 +132,32 @@ def add_users_to_group(user_dns: list, group):
         old_entry = {"member": results[0][1]["member"]}
         new_entry = {"member": list({*old_entry["member"], *[x.encode("utf-8") for x in user_dns]})}
         mod_list = ldap.modlist.modifyModlist(old_entry, new_entry)
-        conn.modify_s(dn, mod_list)
+        conn.modify_ext_s(dn, mod_list)
+    conn.unbind_s()
+
+
+def add_user_to_group(dn, group):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    results = conn.search_s(
+        settings.LDAP_GROUP_DN,
+        ldap.SCOPE_SUBTREE,
+        f"(&(cn={group})(objectClass=groupOfNames))"
+    )
+    group_dn = f"cn={group},{settings.LDAP_GROUP_DN}"
+    if len(results) == 0:
+        # Create group if not existent
+        mod_list = ldap.modlist.addModlist(
+            {
+                "cn": [group.encode("utf-8")],
+                "member": dn.encode("utf-8"),
+                "objectClass": ["groupOfNames".encode("utf-8"), "top".encode("utf-8")],
+            }
+        )
+        conn.add_s(group_dn, modlist=mod_list)
+    else:
+        mod_list = [(ldap.MOD_ADD, "member", dn.encode("utf-8"))]
+        conn.modify_ext_s(group_dn, mod_list)
     conn.unbind_s()
 
 
