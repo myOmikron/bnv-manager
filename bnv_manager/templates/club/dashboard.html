@@ -43,7 +43,11 @@
             <td>{{ user.firstname }}</td>
             <td>{{ user.surname }}</td>
             <td>{{ user.mail }}</td>
-            <td>Reset</td>
+            <td>
+                <a class="button" href="/club-management/resetPassword?username={{ user.username }}&club={{ club }}">
+                    Reset
+                </a>
+            </td>
             <td>
                 <form method="POST" action="/club-management/deleteUser">
                     {% csrf_token %}

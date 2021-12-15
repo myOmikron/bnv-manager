@@ -35,13 +35,45 @@ class ClubDashboard(LoginRequiredMixin, TemplateView):
         return render(request, self.template_name, {"is_club_admin": is_club_admin, "users": users, "club": sid})
 
 
-class ClubResetPassword(LoginRequiredMixin, View):
+class ClubResetPassword(LoginRequiredMixin, TemplateView):
+    template_name = "utils/admin_password_reset.html"
+
+    def get(self, request, *args, **kwargs):
+        is_club_admin = any([x for x in utils.ldap.get_club_admins() if x["username"] == request.user.username])
+        if not is_club_admin:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to access this page!"})
+        club = request.GET["club"]
+        if club != utils.ldap.get_club_for_user(request.user.ldap_user.dn).split(',')[0].split('=')[1]:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to access this page!"})
+        username = request.GET["username"]
+        dn = f"cn={username},{settings.AUTH_LDAP_USER_BASE}"
+        user_group = utils.ldap.get_club_for_user(dn)
+        if f"cn={club},{settings.LDAP_GROUP_DN}" != user_group:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to manage this user!"})
+        return render(request, self.template_name, {"is_club_admin": is_club_admin, "club": club, "username": username})
+
     def post(self, request, *args, **kwargs):
         is_club_admin = any([x for x in utils.ldap.get_club_admins() if x["username"] == request.user.username])
         if not is_club_admin:
             return render(request, "utils/referrer.html", {"msg": "You are not allowed to access this page!"})
-        if request.POST["club"] != utils.ldap.get_club_for_user(request.user.ldap_user.dn).split(',')[0].split('=')[1]:
+        club = request.POST["club"]
+        if club != utils.ldap.get_club_for_user(request.user.ldap_user.dn).split(',')[0].split('=')[1]:
             return render(request, "utils/referrer.html", {"msg": "You are not allowed to access this page!"})
+        username = request.POST["username"]
+        dn = f"cn={username},{settings.AUTH_LDAP_USER_BASE}"
+        user_group = utils.ldap.get_club_for_user(dn)
+        if f"cn={club},{settings.LDAP_GROUP_DN}" != user_group:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to manage this user!"})
+        password = request.POST["password"]
+        if not utils.generic.enforce_password_policy(password):
+            return render(
+                request, "utils/referrer.html",
+                {"msg": "Your password did not meet the requirements: More than 11 characters, min. one special character"}
+            )
+        utils.ldap.set_password(dn, password)
+        mail = utils.ldap.get_user(dn)["mail"][0].decode("utf-8")
+        utils.mailcow.set_password(mail, password)
+        return redirect("/club-management/")
 
 
 class ClubCreateUser(LoginRequiredMixin, View):

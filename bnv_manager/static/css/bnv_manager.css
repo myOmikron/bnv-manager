@@ -40,6 +40,8 @@ body {
     background-color: var(--prim);
     color: black;
     transition: all ease-in-out 200ms;
+    text-decoration: none;
+    font-size: small;
 }
 
 .button:hover {

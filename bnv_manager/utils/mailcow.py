@@ -3,6 +3,7 @@ from os.path import join
 
 import requests
 
+import utils.ldap
 from bnv_manager import settings
 from generic.models import Domain
 from utils.ldap import hash_password
@@ -30,6 +31,21 @@ def add_mailbox(firstname, lastname, mail, password):
 
 def del_mailbox(mail):
     ret = requests.post(join(settings.MAILCOW_API_URI, "api/v1/delete/mailbox"), json=[mail], headers=header)
+    return True if ret.status_code == 200 else False
+
+
+def set_password(mail, password):
+    pw = utils.ldap.hash_password(password)
+    data = {
+        "items": [
+            mail
+        ],
+        "attr": {
+            "password": pw,
+            "password2": pw
+        }
+    }
+    ret = requests.post(join(settings.MAILCOW_API_URI, "api/v1/edit/mailbox"), json=data, headers=header)
     return True if ret.status_code == 200 else False
 
 
