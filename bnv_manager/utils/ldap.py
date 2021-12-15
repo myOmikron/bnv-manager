@@ -29,9 +29,12 @@ def add_user(username, firstname, lastname, mail, password, dn):
     return dn
 
 
-def get_user():
+def get_user(dn=None):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    if dn:
+        ret = conn.read_s(dn)
+        return ret
     ret = conn.search_s(settings.AUTH_LDAP_USER_BASE, ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
     conn.unbind_s()
     return ret
@@ -179,6 +182,25 @@ def remove_users_from_group(user_dns, group):
         else:
             mod_list = ldap.modlist.modifyModlist(old_entry, new_entry)
             conn.modify_s(dn, mod_list)
+    conn.unbind_s()
+
+
+def remove_user_from_group(dn, group):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    results = conn.search_s(
+        settings.LDAP_GROUP_DN,
+        ldap.SCOPE_SUBTREE,
+        f"(&(cn={group})(objectClass=groupOfNames))"
+    )
+    group_dn = f"cn={group},{settings.LDAP_GROUP_DN}"
+    encoded_dn = dn.encode("utf-8")
+    for group in results:
+        if len([x for x in group[1]["member"] if x not in encoded_dn]) == 0:
+            conn.delete_s(group_dn)
+        else:
+            mod_list = [(ldap.MOD_DELETE, "member", encoded_dn)]
+            conn.modify_s(group_dn, mod_list)
     conn.unbind_s()
 
 

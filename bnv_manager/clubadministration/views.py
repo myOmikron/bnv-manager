@@ -71,7 +71,7 @@ class ClubCreateUser(LoginRequiredMixin, View):
         if not utils.generic.enforce_password_policy(password):
             return render(
                 request, "utils/referrer.html",
-                {"msg": "Your password did not meet the requirements: More than 12 characters, min. one special character"}
+                {"msg": "Your password did not meet the requirements: More than 11 characters, min. one special character"}
             )
         dn = utils.ldap.add_user(username, firstname, surname, mail, password, settings.AUTH_LDAP_USER_BASE)
         utils.ldap.add_user_to_group(dn, club)
@@ -87,3 +87,22 @@ class ClubCreateUser(LoginRequiredMixin, View):
             }
         )
 
+
+class ClubDeleteUser(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        is_club_admin = any([x for x in utils.ldap.get_club_admins() if x["username"] == request.user.username])
+        if not is_club_admin:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to access this page!"})
+        club = request.POST["club"]
+        if club != utils.ldap.get_club_for_user(request.user.ldap_user.dn).split(',')[0].split('=')[1]:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to access this page!"})
+        username = request.POST["username"]
+        dn = f"cn={username},{settings.AUTH_LDAP_USER_BASE}"
+        user_group = utils.ldap.get_club_for_user(dn)
+        if f"cn={club},{settings.LDAP_GROUP_DN}" != user_group:
+            return render(request, "utils/referrer.html", {"msg": "You are not allowed to manage this user!"})
+        mail = utils.ldap.get_user(dn)["mail"][0].decode("utf-8")
+        utils.mailcow.del_mailbox(mail)
+        utils.ldap.remove_user_from_group(dn, club)
+        utils.ldap.del_user(dn)
+        return redirect(request.META["HTTP_REFERER"])

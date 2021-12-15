@@ -44,7 +44,14 @@
             <td>{{ user.surname }}</td>
             <td>{{ user.mail }}</td>
             <td>Reset</td>
-            <td>Delete</td>
+            <td>
+                <form method="POST" action="/club-management/deleteUser">
+                    {% csrf_token %}
+                    <input type="hidden" name="club" value="{{ club }}">
+                    <input type="hidden" name="username" value="{{ user.username }}">
+                    <button class="button">Delete</button>
+                </form>
+            </td>
         </tr>
     {% endfor %}
     </table>
