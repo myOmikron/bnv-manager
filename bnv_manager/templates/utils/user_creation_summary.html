@@ -1,27 +1,28 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="flexRow">
     <div class="flexColumn">
-        <h3>Following user has been created:</h3>
+        <h3>{% translate 'Following user has been created:' %}</h3>
         <table class="table">
             <tr>
-                <td>Username</td>
+                <td>{% translate 'Username' %}</td>
                 <td>{{ username }}</td>
             </tr>
             <tr>
-                <td>Firstname</td>
+                <td>{% translate 'Firstname' %}</td>
                 <td>{{ firstname }}</td>
             </tr>
             <tr>
-                <td>Surname</td>
+                <td>{% translate 'Surname' %}</td>
                 <td>{{ surname }}</td>
             </tr>
             <tr>
-                <td>Mail</td>
+                <td>{% translate 'Mail' %}</td>
                 <td>{{ mail }}</td>
             </tr>
         </table>
-        <a class="menuLink" href="{{ referer }}"><h4>Take me back</h4></a>
+        <a class="menuLink" href="{{ referer }}"><h4>{% translate 'Take me back' %}</h4></a>
     </div>
 </div>
 {% endblock %}

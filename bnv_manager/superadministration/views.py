@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
+from django.utils.translation import gettext as _
 
 from bnv_manager import settings
 from generic.models import Club, Domain
@@ -17,7 +18,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this!")})
         clubs = Club.objects.all()
         return render(request, self.template_name, {"clubs": clubs})
 
@@ -26,14 +27,14 @@ class CreateClubView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this!")})
         club = request.POST["club"]
         abbreviation = request.POST["abbreviation"]
         if not re.match(r"^[a-zA-Z0-9]+$", abbreviation):
-            return render(request, "utils/referrer.html", {"msg": "Abbreviation contains an disallowed character"})
+            return render(request, "utils/referrer.html", {"msg": _("Abbreviation contains an disallowed character")})
         new_club, created = Club.objects.get_or_create(name=club)
         if not created:
-            return render(request, "utils/referrer.html", {"msg": "There is already a club with that name!"})
+            return render(request, "utils/referrer.html", {"msg": _("There is already a club with that name!")})
         new_club.abbreviation = abbreviation
         new_club.save()
         return redirect("/admin-management/")
@@ -43,13 +44,13 @@ class DeleteClubView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this!")})
         club_id = request.POST["club"]
         try:
             club = Club.objects.get(id=club_id)
             club.delete()
         except Club.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": f"The club with the id {club_id} does not exist!"})
+            return render(request, "utils/referrer.html", {"msg": _(f"The club does not exist!")})
         return redirect("/admin-management/")
 
 
@@ -58,11 +59,11 @@ class AdminClubManagement(LoginRequiredMixin, TemplateView):
 
     def get(self, request, club_id=None, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this page!")})
         try:
             club = Club.objects.get(id=club_id)
         except Club.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": f"Club with id {club_id} does not exist!"})
+            return render(request, "utils/referrer.html", {"msg": _(f"Club with does not exist!")})
         club_admins = utils.ldap.get_club_admins(club=club.abbreviation)
         other_club_admins = utils.ldap.get_club_admins(club=club.abbreviation, invert=True)
 
@@ -84,7 +85,7 @@ class AdminClubManagement(LoginRequiredMixin, TemplateView):
 class RemoveClubAdminFromClub(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this page!")})
         abbreviation = request.POST["abbreviation"]
         dn = request.POST["dn"]
         domain_admins = utils.mailcow.get_domain_admins()
@@ -98,13 +99,13 @@ class RemoveClubAdminFromClub(LoginRequiredMixin, View):
 class AddClubAdminToClub(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this page!")})
         dn = request.POST["dn"]
         abbreviation = request.POST["abbreviation"]
         try:
             club = Club.objects.get(abbreviation=abbreviation)
         except Club.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": "Club does not exist"})
+            return render(request, "utils/referrer.html", {"msg": _("Club does not exist")})
         utils.ldap.add_users_to_group([dn], abbreviation)
         if any(club.associated_domains.all()):
             utils.mailcow.create_domain_admin(
@@ -118,13 +119,13 @@ class AddClubAdminToClub(LoginRequiredMixin, View):
 class CreateClubAdmin(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this page!")})
         firstname = request.POST["firstname"]
         surname = request.POST["surname"]
         mail = request.POST["mail"]
         password = request.POST["password"]
         if not firstname or not surname or not mail or not password:
-            return render(request, "utils/referrer.html", {"msg": "Please fill out every field"})
+            return render(request, "utils/referrer.html", {"msg": _("Please fill out every field")})
         username = utils.ldap.generate_username(firstname, surname)
         utils.ldap.add_user(username, firstname, surname, mail, password, settings.AUTH_LDAP_CLUB_ADMIN_BASE)
         return render(request, "utils/user_creation_summary.html", {
@@ -139,17 +140,17 @@ class CreateClubAdmin(LoginRequiredMixin, View):
 class AddDomain(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this page!")})
         domain_name = request.POST["domain"]
         club_id = request.POST["club"]
         try:
             club = Club.objects.get(id=club_id)
         except Club.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": f"There is no club with the id {club_id}!"})
+            return render(request, "utils/referrer.html", {"msg": _("Club does not exist!")})
         try:
             domain = Domain.objects.get(domain=domain_name)
         except Domain.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": f"There is no such domain"})
+            return render(request, "utils/referrer.html", {"msg": _("There is no such domain")})
         club_admins = utils.ldap.get_club_admins(club.name)
         club_admin_usernames = [x["username"] for x in club_admins]
         domain_admins = [x for x in utils.mailcow.get_domain_admins() if x["username"] in club_admin_usernames]
@@ -166,17 +167,17 @@ class AddDomain(LoginRequiredMixin, View):
 class RemoveDomain(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return render(request, "utils/referrer.html", {"msg": "You are not allowed to use this page!"})
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to use this page!")})
         domain_name = request.POST["domain"]
         club_id = request.POST["club"]
         try:
             club = Club.objects.get(id=club_id)
         except Club.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": f"There is no club with the id {club_id}!"})
+            return render(request, "utils/referrer.html", {"msg": _("Club does not exist!")})
         try:
             domain = Domain.objects.get(domain=domain_name)
         except Domain.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": f"There is no such domain"})
+            return render(request, "utils/referrer.html", {"msg": _("There is no such domain")})
         club.associated_domains.remove(domain)
         club_admins = utils.ldap.get_club_admins(club.name)
         domains = [x.domain for x in club.associated_domains.all()]

@@ -1,41 +1,42 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 {% block content %}
 
-    <h3>User creation</h3>
+    <h3>{% translate 'User creation' %}</h3>
     <form method="POST" action="/club-management/createUser">
         {% csrf_token %}
         <input type="hidden" name="club" value="{{ club }}">
         <table>
             <tr>
-                <td><label for="firstname">Firstname</label></td>
+                <td><label for="firstname">{% translate 'Firstname' %}</label></td>
                 <td><input id="firstname" name="firstname" class="input" required></td>
             </tr>
             <tr>
-                <td><label for="surname">Surname</label></td>
+                <td><label for="surname">{% translate 'Surname' %}</label></td>
                 <td><input id="surname" name="surname" class="input" required></td>
             </tr>
             <tr>
-                <td><label for="mail">Mailbox</label></td>
+                <td><label for="mail">{% translate 'Mailbox' %}</label></td>
                 <td><input id="mail" name="mail" class="input" type="email" required></td>
             </tr>
             <tr>
-                <td><label for="initialPassword">Initial password</label></td>
+                <td><label for="initialPassword">{% translate 'Initial password' %}</label></td>
                 <td><input id="initialPassword" type="password" class="input" name="initialPassword" required> </td>
             </tr>
         </table>
-        <button class="button">Add</button>
+        <button class="button">{% translate 'Add' %}</button>
     </form>
 
-    <h3>User management</h3>
+    <h3>{% translate 'User management' %}</h3>
     <table class="table">
         <tr>
-            <th>Username</th>
-            <th>Firstname</th>
-            <th>Surname</th>
-            <th>Mail</th>
-            <th>Reset password</th>
-            <th>Delete user</th>
+            <th>{% translate 'Username' %}</th>
+            <th>{% translate 'Firstname' %}</th>
+            <th>{% translate 'Surname' %}</th>
+            <th>{% translate 'Mail' %}</th>
+            <th>{% translate 'Reset password' %}</th>
+            <th>{% translate 'Delete user' %}</th>
         </tr>
     {% for user in users %}
         <tr>
@@ -45,7 +46,7 @@
             <td>{{ user.mail }}</td>
             <td>
                 <a class="button" href="/club-management/resetPassword?username={{ user.username }}&club={{ club }}">
-                    Reset
+                    {% translate 'Reset' %}
                 </a>
             </td>
             <td>
@@ -53,7 +54,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="club" value="{{ club }}">
                     <input type="hidden" name="username" value="{{ user.username }}">
-                    <button class="button">Delete</button>
+                    <button class="button">{% translate 'Delete' %}</button>
                 </form>
             </td>
         </tr>

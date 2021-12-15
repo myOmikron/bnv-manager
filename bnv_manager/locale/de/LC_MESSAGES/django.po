@@ -1,0 +1,373 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-15 08:06+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: clubadministration/views.py:18 clubadministration/views.py:31
+#: clubadministration/views.py:33 clubadministration/views.py:45
+#: clubadministration/views.py:48 clubadministration/views.py:59
+#: clubadministration/views.py:62 clubadministration/views.py:84
+#: clubadministration/views.py:87 clubadministration/views.py:128
+#: clubadministration/views.py:131
+msgid "You are not allowed to access this page!"
+msgstr ""
+
+#: clubadministration/views.py:22
+msgid "Nothing here :C"
+msgstr ""
+
+#: clubadministration/views.py:53 clubadministration/views.py:67
+#: clubadministration/views.py:136
+msgid "You are not allowed to manage this user!"
+msgstr ""
+
+#: clubadministration/views.py:72 clubadministration/views.py:107
+msgid ""
+"Your password did not meet the requirements: More than 11 characters, min. "
+"one special character"
+msgstr ""
+
+#: clubadministration/views.py:95 superadministration/views.py:149
+#: superadministration/views.py:176
+msgid "Club does not exist!"
+msgstr ""
+
+#: clubadministration/views.py:97
+msgid "This domain isn't associated with your club!"
+msgstr ""
+
+#: clubadministration/views.py:100
+msgid "This mail has already been registered by another user"
+msgstr ""
+
+#: generic/views.py:37
+msgid "New password was not repeated correctly!"
+msgstr "Neues Passwort wurde nicht korrekt wiederholt!"
+
+#: generic/views.py:45
+msgid "Your current credentials were incorrect!"
+msgstr ""
+
+#: generic/views.py:56
+msgid "You don't have the permission to delete this alias"
+msgstr ""
+
+#: generic/views.py:66
+msgid "You entered an invalid front-part!"
+msgstr ""
+
+#: generic/views.py:74
+msgid "There is already an alias registered with that front-part!"
+msgstr ""
+
+#: generic/views.py:83
+msgid "There is already a mailbox registered with that front-part!"
+msgstr ""
+
+#: superadministration/views.py:21 superadministration/views.py:30
+#: superadministration/views.py:47
+msgid "You are not allowed to use this!"
+msgstr ""
+
+#: superadministration/views.py:34
+msgid "Abbreviation contains an disallowed character"
+msgstr ""
+
+#: superadministration/views.py:37
+msgid "There is already a club with that name!"
+msgstr ""
+
+#: superadministration/views.py:53
+msgid "The club does not exist!"
+msgstr ""
+
+#: superadministration/views.py:62 superadministration/views.py:88
+#: superadministration/views.py:102 superadministration/views.py:122
+#: superadministration/views.py:143 superadministration/views.py:170
+msgid "You are not allowed to use this page!"
+msgstr ""
+
+#: superadministration/views.py:66
+msgid "Club with does not exist!"
+msgstr ""
+
+#: superadministration/views.py:108
+msgid "Club does not exist"
+msgstr ""
+
+#: superadministration/views.py:128
+msgid "Please fill out every field"
+msgstr ""
+
+#: superadministration/views.py:153 superadministration/views.py:180
+msgid "There is no such domain"
+msgstr ""
+
+#: templates/account.html:7
+msgid "Account Management"
+msgstr ""
+
+#: templates/account.html:10
+msgid "Current aliases"
+msgstr ""
+
+#: templates/account.html:27
+msgid "You haven\\"
+msgstr ""
+
+#: templates/account.html:29 templates/account.html:34
+msgid "Create alias"
+msgstr ""
+
+#: templates/account.html:32
+msgid "Alias:"
+msgstr ""
+
+#: templates/account.html:33
+msgid "Just enter the front-part, @domain.com is added automatically!"
+msgstr ""
+
+#: templates/account.html:38
+msgid "Password Reset"
+msgstr ""
+
+#: templates/account.html:43
+msgid "Old password"
+msgstr ""
+
+#: templates/account.html:47
+msgid "New password"
+msgstr ""
+
+#: templates/account.html:51
+msgid "Repeat new password"
+msgstr ""
+
+#: templates/account.html:55 templates/admin/admin_club_management.html:57
+#: templates/club/dashboard.html:49
+msgid "Reset"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:6
+#, python-format
+msgid "Management for Club: '%(club.name)s'"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:7
+msgid "Current club admins"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:10
+#: templates/admin/admin_club_management.html:42
+#: templates/club/dashboard.html:34
+#: templates/utils/user_creation_summary.html:9
+msgid "Username"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:11
+#: templates/admin/admin_club_management.html:43
+#: templates/admin/admin_management.html:45 templates/club/dashboard.html:12
+#: templates/club/dashboard.html:35
+#: templates/utils/user_creation_summary.html:13
+msgid "Firstname"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:12
+#: templates/admin/admin_club_management.html:44
+#: templates/admin/admin_management.html:49 templates/club/dashboard.html:16
+#: templates/club/dashboard.html:36
+#: templates/utils/user_creation_summary.html:17
+msgid "Surname"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:13
+#: templates/admin/admin_club_management.html:45
+#: templates/club/dashboard.html:38
+#: templates/utils/admin_password_reset.html:12
+msgid "Reset password"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:14
+#: templates/admin/admin_club_management.html:75
+msgid "Remove from club"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:33
+#: templates/admin/admin_club_management.html:85
+msgid "Remove"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:39
+msgid "Unassociated club admins"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:46
+#: templates/admin/admin_club_management.html:95
+msgid "Add to club"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:65
+#: templates/admin/admin_club_management.html:105
+#: templates/club/dashboard.html:28
+msgid "Add"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:71
+msgid "Associated domains"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:74
+#: templates/admin/admin_club_management.html:94
+msgid "Domain"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:111
+msgid "Delete club"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:115
+msgid "Delete Club"
+msgstr ""
+
+#: templates/admin/admin_club_management.html:116
+msgid ""
+"CAUTION! This will delete all mailboxes as well as all corresponding domain "
+"admins!"
+msgstr ""
+
+#: templates/admin/admin_management.html:7
+msgid "Clubs"
+msgstr ""
+
+#: templates/admin/admin_management.html:8
+msgid "Create new club"
+msgstr ""
+
+#: templates/admin/admin_management.html:11
+msgid "Only [a-zA-Z0-9] are allowed as abbreviation"
+msgstr ""
+
+#: templates/admin/admin_management.html:14
+msgid "Abbreviation"
+msgstr ""
+
+#: templates/admin/admin_management.html:18
+msgid "Name"
+msgstr ""
+
+#: templates/admin/admin_management.html:22
+msgid "Create"
+msgstr ""
+
+#: templates/admin/admin_management.html:25
+msgid "Available clubs"
+msgstr ""
+
+#: templates/admin/admin_management.html:35
+msgid "There are no clubs yet!"
+msgstr ""
+
+#: templates/admin/admin_management.html:39
+msgid "Club admins"
+msgstr ""
+
+#: templates/admin/admin_management.html:40
+msgid "Create new club admin"
+msgstr ""
+
+#: templates/admin/admin_management.html:53 templates/club/dashboard.html:37
+#: templates/utils/user_creation_summary.html:21
+msgid "Mail"
+msgstr ""
+
+#: templates/admin/admin_management.html:57
+msgid "Password"
+msgstr ""
+
+#: templates/admin/admin_management.html:61 templates/auth/login.html:24
+msgid "Submit"
+msgstr ""
+
+#: templates/auth/login.html:15
+msgid "Login"
+msgstr ""
+
+#: templates/auth/login.html:17
+msgid "Username:"
+msgstr ""
+
+#: templates/auth/login.html:21
+msgid "Password:"
+msgstr ""
+
+#: templates/base.html:18
+msgid "Account"
+msgstr ""
+
+#: templates/base.html:20
+msgid "Admin Management"
+msgstr ""
+
+#: templates/base.html:23
+msgid "Club Management"
+msgstr ""
+
+#: templates/base.html:25
+msgid "Settings"
+msgstr ""
+
+#: templates/base.html:26
+msgid "Logout"
+msgstr ""
+
+#: templates/club/dashboard.html:6
+msgid "User creation"
+msgstr ""
+
+#: templates/club/dashboard.html:20
+msgid "Mailbox"
+msgstr ""
+
+#: templates/club/dashboard.html:24
+msgid "Initial password"
+msgstr ""
+
+#: templates/club/dashboard.html:31
+msgid "User management"
+msgstr ""
+
+#: templates/club/dashboard.html:39
+msgid "Delete user"
+msgstr ""
+
+#: templates/club/dashboard.html:57
+msgid "Delete"
+msgstr ""
+
+#: templates/utils/admin_password_reset.html:8
+msgid "Enter the new password:"
+msgstr ""
+
+#: templates/utils/referrer.html:7
+#: templates/utils/user_creation_summary.html:25
+msgid "Take me back"
+msgstr ""
+
+#: templates/utils/user_creation_summary.html:6
+msgid "Following user has been created:"
+msgstr ""

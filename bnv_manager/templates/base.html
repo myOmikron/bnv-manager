@@ -1,9 +1,10 @@
+{% load i18n %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>BNV Manager</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/bnv_manager.css' %}">
     <script src="{% static 'js/bnv_manager.js' %}"></script>
 </head>
@@ -14,15 +15,15 @@
 <div class="sideMenu">
     <h2>BNV Manager</h2>
     <ul class="menu">
-        <li class="clickable" onclick="location.href='/'">Account</li>
+        <li class="clickable" onclick="location.href='/'">{% translate 'Account' %}</li>
     {% if request.user.is_superuser %}
-        <li class="clickable" onclick="location.href='/admin-management'">Admin Management</li>
+        <li class="clickable" onclick="location.href='/admin-management'">{% translate 'Admin Management' %}</li>
     {% endif %}
     {% if is_club_admin %}
-        <li class="clickable" onclick="location.href='/club-management'">Club Management</li>
+        <li class="clickable" onclick="location.href='/club-management'">{% translate 'Club Management' %}</li>
     {% endif %}
-        <li class="clickable" onclick="location.href='/settings'">Settings</li>
-        <li class="clickable" onclick="location.href='/logout'">Logout</li>
+        <li class="clickable" onclick="location.href='/settings'">{% translate 'Settings' %}</li>
+        <li class="clickable" onclick="location.href='/logout'">{% translate 'Logout' %}</li>
     </ul>
 </div>
 

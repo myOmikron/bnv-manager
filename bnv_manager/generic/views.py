@@ -6,8 +6,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
-
-from generic import models
+from django.utils.translation import gettext as _
 
 import utils.ldap
 import utils.mailcow
@@ -35,7 +34,7 @@ class ResetPassword(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if authenticate(request, username=request.user.username, password=request.POST["oldPW"]):
             if request.POST["newPW"] != request.POST["repeatNewPW"]:
-                return render(request, "utils/referrer.html", {"msg": "New password was not repeated correctly!"})
+                return render(request, "utils/referrer.html", {"msg": _("New password was not repeated correctly!")})
             utils.ldap.set_password(request.user.ldap_user.dn, request.POST["newPW"])
             is_club_admin = any([x for x in utils.ldap.get_club_admins() if x["username"] == request.user.username])
             if not request.user.is_superuser and not is_club_admin:
@@ -43,7 +42,7 @@ class ResetPassword(LoginRequiredMixin, View):
             logout(request)
             return redirect("/login")
         else:
-            return render(request, "utils/referrer.html", {"msg": "Your current credentials were incorrect!"})
+            return render(request, "utils/referrer.html", {"msg": _("Your current credentials were incorrect!")})
 
 
 class DeleteAlias(LoginRequiredMixin, View):
@@ -53,7 +52,9 @@ class DeleteAlias(LoginRequiredMixin, View):
         if alias_id in [x["id"] for x in utils.mailcow.get_aliases(request.user.ldap_user.attrs["mail"][0])]:
             utils.mailcow.del_alias(alias_id)
         else:
-            return render(request, "utils/referrer.html", {"msg": "You don't have the permission to delete this alias"})
+            return render(
+                request, "utils/referrer.html", {"msg": _("You don't have the permission to delete this alias")}
+            )
         return redirect("/")
 
 
@@ -62,7 +63,7 @@ class CreateAlias(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         alias = request.POST["alias"]
         if not re.match(r'\b[A-Za-z0-9._%+-]+\b', alias):
-            return render(request, "utils/referrer.html", {"msg": "You entered an invalid front-part!"})
+            return render(request, "utils/referrer.html", {"msg": _("You entered an invalid front-part!")})
         user_mail = request.user.ldap_user.attrs["mail"][0]
         if alias in [
             x["address"].split("@")[0] for x
@@ -70,7 +71,7 @@ class CreateAlias(LoginRequiredMixin, View):
         ]:
             return render(
                 request, "utils/referrer.html",
-                {"msg": "There is already an alias registered with that front-part!"}
+                {"msg": _("There is already an alias registered with that front-part!")}
             )
         if alias in [
             x[1]["mail"][0].decode("utf-8").split("@")[0] for x
@@ -79,7 +80,7 @@ class CreateAlias(LoginRequiredMixin, View):
         ]:
             return render(
                 request, "utils/referrer.html",
-                {"msg": "There is already a mailbox registered with that front-part!"}
+                {"msg": _("There is already a mailbox registered with that front-part!")}
             )
         utils.mailcow.add_alias(request.user.ldap_user.attrs["mail"][0], f"{alias}@{user_mail.split('@')[1]}")
         return redirect("/")

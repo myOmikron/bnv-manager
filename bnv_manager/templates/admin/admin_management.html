@@ -1,27 +1,28 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 {% block content %}
 <div class="flexRow">
     <div class="flexRowBox">
-        <h2>Clubs</h2>
-        <h3>Create new club</h3>
+        <h2>{% translate 'Clubs' %}</h2>
+        <h3>{% translate 'Create new club' %}</h3>
         <form method="POST" action="/admin-management/createClub">
         {% csrf_token %}
-            <pre>Only [a-zA-Z0-9] are allowed as abbreviation</pre>
+            <pre>{% translate 'Only [a-zA-Z0-9] are allowed as abbreviation' %}</pre>
             <table>
                 <tr>
-                    <td><label for="abbreviation">Abbreviation</label></td>
+                    <td><label for="abbreviation">{% translate 'Abbreviation' %}</label></td>
                     <td><input id="abbreviation" class="input" name="abbreviation" required></td>
                 </tr>
                 <tr>
-                    <td><label for="club">Name</label></td>
+                    <td><label for="club">{% translate 'Name' %}</label></td>
                     <td><input id="club" class="input" name="club" required></td>
                 </tr>
             </table>
-            <button class="button">Create</button>
+            <button class="button">{% translate 'Create' %}</button>
         </form>
 
-        <h3>Available clubs</h3>
+        <h3>{% translate 'Available clubs' %}</h3>
         {% if clubs %}
         <div class="clubContent">
         {% for club in clubs %}
@@ -31,33 +32,33 @@
         {% endfor %}
         </div>
         {% else %}
-            <p>There are no clubs yet!</p>
+            <p>{% translate 'There are no clubs yet!' %}</p>
         {% endif %}
     </div>
     <div class="flexRowBox">
-        <h2>Club admins</h2>
-        <h3>Create new club admin</h3>
+        <h2>{% translate 'Club admins' %}</h2>
+        <h3>{% translate 'Create new club admin' %}</h3>
         <form method="POST" action="/admin-management/createClubAdmin">
             {% csrf_token %}
             <table>
                 <tr>
-                    <td><label for="firstname">Firstname</label></td>
+                    <td><label for="firstname">{% translate 'Firstname' %}</label></td>
                     <td><input id="firstname" class="input" name="firstname" required></td>
                 </tr>
                 <tr>
-                    <td><label for="surname">Surname</label></td>
+                    <td><label for="surname">{% translate 'Surname' %}</label></td>
                     <td><input id="surname" class="input" name="surname" required></td>
                 </tr>
                 <tr>
-                    <td><label for="mail">Mail</label></td>
+                    <td><label for="mail">{% translate 'Mail' %}</label></td>
                     <td><input id="mail" class="input" type="email" name="mail" required></td>
                 </tr>
                 <tr>
-                    <td><label for="password">Password</label></td>
+                    <td><label for="password">{% translate 'Password' %}</label></td>
                     <td><input type="password" id="password" name="password" class="input" required></td>
                 </tr>
             </table>
-            <button class="button">Submit</button>
+            <button class="button">{% translate 'Submit' %}</button>
         </form>
     </div>
 </div>
