@@ -1,6 +1,7 @@
 from django.urls import path, include
 
 import superadministration.urls
+import clubadministration.urls
 from generic.views import *
 
 
@@ -15,5 +16,6 @@ urlpatterns = [
     path('user/createAlias', CreateAlias.as_view()),
 
     # Other
-    path('admin-management/', include(superadministration.urls))
+    path('admin-management/', include(superadministration.urls)),
+    path('club-management/', include(clubadministration.urls))
 ]
