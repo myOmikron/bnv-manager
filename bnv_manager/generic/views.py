@@ -36,8 +36,10 @@ class ResetPassword(LoginRequiredMixin, View):
         if authenticate(request, username=request.user.username, password=request.POST["oldPW"]):
             if request.POST["newPW"] != request.POST["repeatNewPW"]:
                 return render(request, "utils/referrer.html", {"msg": "New password was not repeated correctly!"})
-            if request.user.ldap_user:
-                utils.ldap.set_password(request.user.ldap_user.dn, request.POST["newPW"])
+            utils.ldap.set_password(request.user.ldap_user.dn, request.POST["newPW"])
+            is_club_admin = any([x for x in utils.ldap.get_club_admins() if x["username"] == request.user.username])
+            if not request.user.is_superuser and not is_club_admin:
+                utils.mailcow.set_password(request.user.ldap_user.attrs["mail"][0], request.POST["newPW"])
             logout(request)
             return redirect("/login")
         else:
