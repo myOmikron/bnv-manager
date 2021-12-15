@@ -3,6 +3,7 @@ import re
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
@@ -10,6 +11,7 @@ from django.utils.translation import gettext as _
 
 import utils.ldap
 import utils.mailcow
+from bnv_manager import settings
 
 
 class Login(LoginView):
@@ -84,3 +86,29 @@ class CreateAlias(LoginRequiredMixin, View):
             )
         utils.mailcow.add_alias(request.user.ldap_user.attrs["mail"][0], f"{alias}@{user_mail.split('@')[1]}")
         return redirect("/")
+
+
+class Settings(LoginRequiredMixin, TemplateView):
+    template_name = "settings.html"
+
+    def get(self, request: WSGIRequest, *args, **kwargs):
+        is_club_admin = any([x for x in utils.ldap.get_club_admins() if x["username"] == request.user.username])
+        return render(request, self.template_name, {
+            "is_club_admin": is_club_admin,
+            "languages": [{
+                "identifier": x[0],
+                "representation": x[1]
+            } for x in settings.LANGUAGES],
+            "current": request.COOKIES["django_language"] if "django_language" in request.COOKIES else None
+        })
+
+
+class SetLanguage(LoginRequiredMixin, View):
+
+    def post(self, request: WSGIRequest, *args, **kwargs):
+        if "lang" not in request.POST:
+            return render(request, "utils/referrer.html", {"msg": _("Please select a language!")})
+        lang = request.POST["lang"]
+        r = redirect(request.META["HTTP_REFERER"])
+        r.set_cookie("django_language", lang)
+        return r

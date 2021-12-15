@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-15 08:33+0100\n"
+"POT-Creation-Date: 2021-12-15 09:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: bnv_manager/settings.py:122
+msgid "German"
+msgstr "Deutsch"
+
+#: bnv_manager/settings.py:123
+msgid "English"
+msgstr "Englisch"
 
 #: clubadministration/views.py:18 clubadministration/views.py:31
 #: clubadministration/views.py:33 clubadministration/views.py:45
@@ -57,29 +65,33 @@ msgstr "Diese Domain ist nicht mit deinem Verein verknüpft!"
 msgid "This mail has already been registered by another user"
 msgstr "Diese Mailadresse wurde schon von einem anderen Nutzer registriert"
 
-#: generic/views.py:37
+#: generic/views.py:39
 msgid "New password was not repeated correctly!"
 msgstr "Neues Passwort wurde nicht korrekt wiederholt!"
 
-#: generic/views.py:45
+#: generic/views.py:47
 msgid "Your current credentials were incorrect!"
 msgstr "Deine jetzigen Logindaten waren inkorrekt!"
 
-#: generic/views.py:56
+#: generic/views.py:58
 msgid "You don't have the permission to delete this alias"
 msgstr "Du hast nicht die Berechtigung diesen Alias zu löschen"
 
-#: generic/views.py:66
+#: generic/views.py:68
 msgid "You entered an invalid front-part!"
 msgstr "Du hast einen ungültigen Vorderteil eingegeben!"
 
-#: generic/views.py:74
+#: generic/views.py:76
 msgid "There is already an alias registered with that front-part!"
 msgstr "Es gibt bereits einen Alias mit diesem lokalen Teil!"
 
-#: generic/views.py:83
+#: generic/views.py:85
 msgid "There is already a mailbox registered with that front-part!"
 msgstr "Es gibt bereits eine Mailbox mit diesem lokalen Teil!"
+
+#: generic/views.py:110
+msgid "Please select a language!"
+msgstr "Bitte wähle eine Sprache aus!"
 
 #: superadministration/views.py:21 superadministration/views.py:30
 #: superadministration/views.py:47
@@ -138,7 +150,8 @@ msgstr "Alias:"
 
 #: templates/account.html:33
 msgid "Just enter the local-part, @domain.com is added automatically!"
-msgstr "Gib nur den lokalen Teil ein, @domain.com wird automatisch hinzugefügt!"
+msgstr ""
+"Gib nur den lokalen Teil ein, @domain.com wird automatisch hinzugefügt!"
 
 #: templates/account.html:38
 msgid "Password Reset"
@@ -358,6 +371,18 @@ msgstr "Nutzer löschen"
 #: templates/club/dashboard.html:57
 msgid "Delete"
 msgstr "Löschen"
+
+#: templates/settings.html:7
+msgid "Language selection"
+msgstr "Sprachauswahl"
+
+#: templates/settings.html:10
+msgid "Select your preferred language:"
+msgstr "Wähle deine bevorzugte Sprache"
+
+#: templates/settings.html:21
+msgid "Select"
+msgstr "Auswählen"
 
 #: templates/utils/admin_password_reset.html:8
 msgid "Enter the new password:"

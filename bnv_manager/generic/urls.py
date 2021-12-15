@@ -9,6 +9,8 @@ urlpatterns = [
     path('login', Login.as_view()),
     path('logout', Logout.as_view()),
     path('', DashboardView.as_view()),
+    path('settings', Settings.as_view()),
+    path('setLanguage', SetLanguage.as_view()),
 
     # Account functionality
     path('user/resetPassword', ResetPassword.as_view()),
