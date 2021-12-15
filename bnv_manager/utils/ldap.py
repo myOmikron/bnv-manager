@@ -75,6 +75,31 @@ def get_club_admins(club=None, invert=False):
     } for x in results]
 
 
+def get_club_for_user(dn):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    results = conn.read_s(dn, attrlist=["memberOf"])
+    conn.unbind_s()
+    return [x.decode("utf-8") for x in results["memberOf"]][0] if "memberOf" in results else None
+
+
+def get_club_users(club):
+    conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
+    conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
+    search = f"(&(objectClass=inetOrgPerson)(memberOf=cn={club},{settings.LDAP_GROUP_DN}))"
+    results = conn.search_s(settings.AUTH_LDAP_USER_BASE, ldap.SCOPE_SUBTREE, search)
+    conn.unbind_s()
+    return [
+        {
+            "firstname": x[1]["givenName"][0].decode("utf-8"),
+            "surname": x[1]["sn"][0].decode("utf-8"),
+            "mail": x[1]["mail"][0].decode("utf-8"),
+            "username": x[1]["cn"][0].decode("utf-8"),
+            "dn": x[0]
+        } for x in results
+    ]
+
+
 def add_users_to_group(user_dns: list, group):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
