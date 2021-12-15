@@ -50,7 +50,7 @@ class DeleteClubView(LoginRequiredMixin, View):
             club = Club.objects.get(id=club_id)
             club.delete()
         except Club.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": _(f"The club does not exist!")})
+            return render(request, "utils/referrer.html", {"msg": _("The club does not exist!")})
         return redirect("/admin-management/")
 
 
@@ -63,7 +63,7 @@ class AdminClubManagement(LoginRequiredMixin, TemplateView):
         try:
             club = Club.objects.get(id=club_id)
         except Club.DoesNotExist:
-            return render(request, "utils/referrer.html", {"msg": _(f"Club with does not exist!")})
+            return render(request, "utils/referrer.html", {"msg": _("Club does not exist!")})
         club_admins = utils.ldap.get_club_admins(club=club.abbreviation)
         other_club_admins = utils.ldap.get_club_admins(club=club.abbreviation, invert=True)
 

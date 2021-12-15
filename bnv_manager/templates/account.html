@@ -24,13 +24,13 @@
     {% endfor %}
     </table>
     {% else %}
-        <p>{% translate 'You haven\'t created any aliases yet!' %}</p>
+        <p>{% translate "You haven't created any aliases yet!" %}</p>
     {% endif %}
     <h3>{% translate 'Create alias' %}</h3>
     <form method="POST" action="/user/createAlias">
         {% csrf_token %}
         <label>{% translate 'Alias:' %} <input id="createAlias" name="alias" class="input" required></label><br>
-        <pre>{% translate 'Just enter the front-part, @domain.com is added automatically!' %}</pre>
+        <pre>{% translate 'Just enter the local-part, @domain.com is added automatically!' %}</pre>
         <button class="button">{% translate 'Create alias' %}</button>
     </form>
 
