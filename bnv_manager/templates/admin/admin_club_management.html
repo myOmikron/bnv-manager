@@ -3,7 +3,7 @@
 {% load i18n %}
 {% block content %}
 
-<h2>{% blocktranslate %}Management for Club: '{{ club.name }}'{% endblocktranslate %}</h2>
+<h2>{% translate 'Management for Club: ' %}{{ club.name }}</h2>
 <h3>{% translate 'Current club admins' %}</h3>
 <table class="table">
     <tr>
@@ -22,7 +22,7 @@
             <form method="POST" action="/admin-management/resetUserPassword">
                 {% csrf_token %}
                 <input type="hidden" name="dn" value="{{ user.dn }}">
-                <button class="button">{% translatte 'Reset' %}</button>
+                <button class="button">{% translate 'Reset' %}</button>
             </form>
         </td>
         <td>
@@ -88,7 +88,7 @@
     </tr>
 {% endfor %}
 </table>
-<h3>{% tramslate 'Unassociated domains' %}</h3>
+<h3>{% translate 'Unassociated domains' %}</h3>
 <table class="table littleTable">
     <tr>
         <th>{% translate 'Domain' %}</th>

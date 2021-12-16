@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-15 09:17+0100\n"
+"POT-Creation-Date: 2021-12-16 23:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -169,15 +169,17 @@ msgstr "Neues Passwort"
 msgid "Repeat new password"
 msgstr "Neues Passwort wiederholen"
 
-#: templates/account.html:55 templates/admin/admin_club_management.html:57
+#: templates/account.html:55 templates/admin/admin_club_management.html:25
+#: templates/admin/admin_club_management.html:57
 #: templates/club/dashboard.html:49
 msgid "Reset"
 msgstr "Zurücksetzen"
 
 #: templates/admin/admin_club_management.html:6
-#, python-format
-msgid "Management for Club: '%(club.name)s'"
-msgstr "Vereinsverwaltung für: '%(club.name)s'"
+#, fuzzy
+#| msgid "Management for Club: '%(club.name)s'"
+msgid "Management for Club: "
+msgstr "Vereinsverwaltung für: "
 
 #: templates/admin/admin_club_management.html:7
 msgid "Current club admins"
@@ -246,6 +248,12 @@ msgstr "Verknüpfte Domains"
 #: templates/admin/admin_club_management.html:94
 msgid "Domain"
 msgstr "Domain"
+
+#: templates/admin/admin_club_management.html:91
+#, fuzzy
+#| msgid "Associated domains"
+msgid "Unassociated domains"
+msgstr "Verknüpfte Domains"
 
 #: templates/admin/admin_club_management.html:111
 msgid "Delete club"
