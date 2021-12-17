@@ -40,7 +40,7 @@ def get_user(dn=None):
     return ret
 
 
-def del_user(dn):
+def del_dn(dn):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
     conn.delete_s(dn)
@@ -86,11 +86,11 @@ def get_club_for_user(dn):
     return [x.decode("utf-8") for x in results["memberOf"]][0] if "memberOf" in results else None
 
 
-def get_club_users(club):
+def get_club_users(club, search_base=settings.AUTH_LDAP_USER_BASE):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
     search = f"(&(objectClass=inetOrgPerson)(memberOf=cn={club},{settings.LDAP_GROUP_DN}))"
-    results = conn.search_s(settings.AUTH_LDAP_USER_BASE, ldap.SCOPE_SUBTREE, search)
+    results = conn.search_s(search_base, ldap.SCOPE_SUBTREE, search)
     conn.unbind_s()
     return [
         {

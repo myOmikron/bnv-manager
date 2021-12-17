@@ -49,6 +49,14 @@ class DeleteClubView(LoginRequiredMixin, View):
         club_id = request.POST["club"]
         try:
             club = Club.objects.get(id=club_id)
+            club_users = utils.ldap.get_club_users(club.abbreviation, search_base=settings.LDAP_GLOBAL_SEARCH_BASE)
+            for user in club_users:
+                utils.ldap.del_dn(f"cn={club.abbreviation},{settings.LDAP_GROUP_DN}")
+                utils.ldap.del_dn(user["dn"])
+                if ",".join(user["dn"].split(",")[1:]) == settings.AUTH_LDAP_USER_BASE:
+                    utils.mailcow.del_mailbox(user["mail"])
+                elif ",".join(user["dn"].split(",")[1:]) == settings.AUTH_LDAP_CLUB_ADMIN_BASE:
+                    utils.mailcow.del_domain_admin(user["username"])
             club.delete()
         except Club.DoesNotExist:
             return render(request, "utils/referrer.html", {"msg": _("The club does not exist!")})

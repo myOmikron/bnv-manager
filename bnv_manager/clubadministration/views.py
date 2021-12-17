@@ -137,5 +137,5 @@ class ClubDeleteUser(LoginRequiredMixin, View):
         mail = utils.ldap.get_user(dn)["mail"][0].decode("utf-8")
         utils.mailcow.del_mailbox(mail)
         utils.ldap.remove_user_from_group(dn, club)
-        utils.ldap.del_user(dn)
+        utils.ldap.del_dn(dn)
         return redirect(request.META["HTTP_REFERER"])
