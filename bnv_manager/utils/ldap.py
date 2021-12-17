@@ -205,15 +205,34 @@ def remove_user_from_group(dn, group):
 
 
 def generate_username(firstname, surname):
-    username = f"{firstname.lower()}.{surname.lower()}"
+    mapping = {
+        "ö": "oe",
+        "ü": "ue",
+        "ä": "ae",
+        "ß": "ss"
+    }
+    for k, v in mapping.items():
+        firstname = firstname.replace(k, v)
+        surname = surname.replace(k, v)
+    firstname = "".join(x.lower() for x in firstname if x.isalnum())
+    surname = "".join(x.lower() for x in surname if x.isalnum())
+
+    if not surname:
+        username = firstname
+    elif not firstname:
+        username = surname
+    else:
+        username = f"{firstname}.{surname}"
+
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
     results = conn.search_s(settings.LDAP_GLOBAL_SEARCH_BASE, ldap.SCOPE_SUBTREE, f"(cn={username}*)")
     conn.unbind_s()
     cns = [x[0].split(",")[0] for x in results if x[0].split(",")[0].startswith(f"cn={username}")]
     counter = 1
+    orig = username
     while f"cn={username}" in cns:
-        username = f"{firstname.lower()}.{surname.lower()}{counter}"
+        username = f"{orig}{counter}"
         counter += 1
     return username
 
