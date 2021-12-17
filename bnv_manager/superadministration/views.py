@@ -11,6 +11,7 @@ from generic.models import Club, Domain
 
 import utils.ldap
 import utils.mailcow
+import utils.generic
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -188,3 +189,28 @@ class RemoveDomain(LoginRequiredMixin, View):
             for x in club_admins:
                 utils.mailcow.del_domain_admin(x["username"])
         return redirect(request.META["HTTP_REFERER"])
+
+
+class AdminResetPassword(LoginRequiredMixin, TemplateView):
+    template_name = "utils/admin_password_reset.html"
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to access this page!")})
+        username = request.GET["username"]
+        return render(request, self.template_name, {"username": username})
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return render(request, "utils/referrer.html", {"msg": _("You are not allowed to access this page!")})
+        username = request.POST["username"]
+        dn = f"cn={username},{settings.AUTH_LDAP_CLUB_ADMIN_BASE}"
+        password = request.POST["password"]
+        if not utils.generic.enforce_password_policy(password):
+            return render(
+                request, "utils/referrer.html",
+                {"msg": _(
+                    "Your password did not meet the requirements: More than 11 characters, min. one special character")}
+            )
+        utils.ldap.set_password(dn, password)
+        return redirect("/admin-management/")

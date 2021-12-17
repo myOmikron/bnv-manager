@@ -19,11 +19,9 @@
         <td>{{ user.firstname }}</td>
         <td>{{ user.surname }}</td>
         <td>
-            <form method="POST" action="/admin-management/resetUserPassword">
-                {% csrf_token %}
-                <input type="hidden" name="dn" value="{{ user.dn }}">
-                <button class="button">{% translate 'Reset' %}</button>
-            </form>
+            <a class="button" href="/admin-management/resetPassword?username={{ user.username }}">
+                Reset
+            </a>
         </td>
         <td>
             <form method="POST" action="/admin-management/removeClubAdmin">
@@ -51,11 +49,9 @@
         <td>{{ user.firstname }}</td>
         <td>{{ user.surname }}</td>
         <td>
-            <form method="POST" action="/admin-management/resetUserPassword">
-                {% csrf_token %}
-                <input type="hidden" name="dn" value="{{ user.dn }}">
-                <button class="button">{% translate 'Reset' %}</button>
-            </form>
+            <a class="button" href="/admin-management/resetPassword?username={{ user.username }}">
+                Reset
+            </a>
         </td>
         <td>
             <form method="POST" action="/admin-management/addClubAdmin">
