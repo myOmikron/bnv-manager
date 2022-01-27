@@ -50,7 +50,7 @@ class ResetPassword(LoginRequiredMixin, View):
 class DeleteAlias(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
-        alias_id = int(request.POST["alias"][0])
+        alias_id = int(request.POST["alias"])
         if alias_id in [x["id"] for x in utils.mailcow.get_aliases(request.user.ldap_user.attrs["mail"][0])]:
             utils.mailcow.del_alias(alias_id)
         else:
