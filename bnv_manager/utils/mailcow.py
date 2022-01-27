@@ -1,5 +1,6 @@
 import json
 from os.path import join
+from pprint import pprint
 
 import requests
 
@@ -11,8 +12,11 @@ from utils.ldap import hash_password
 header = {"X-API-Key": settings.MAILCOW_API_KEY}
 
 
-def add_mailbox(firstname, lastname, mail, password):
-    pw = hash_password(password)
+def add_mailbox(firstname, lastname, mail, password, hash_pw=True):
+    if hash_pw:
+        pw = hash_password(password)
+    else:
+        pw = password
     data = {
         "active": "1",
         "domain": mail.split("@")[1],

@@ -10,7 +10,7 @@ def hash_password(password):
     return f"{{CRYPT}}{hashed.decode('utf-8')}"
 
 
-def add_user(username, firstname, lastname, mail, password, dn):
+def add_user(username, firstname, lastname, mail, password, dn, hash_pw=True):
     conn = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
     conn.bind_s(settings.AUTH_LDAP_BIND_DN, settings.AUTH_LDAP_BIND_PASSWORD)
     mod_list = ldap.modlist.addModlist(
@@ -20,7 +20,7 @@ def add_user(username, firstname, lastname, mail, password, dn):
             "mail": [mail.encode("utf-8")],
             "objectClass": ["inetOrgPerson".encode("utf-8"), "top".encode("utf-8")],
             "cn": [username.encode("utf-8")],
-            "userPassword": [hash_password(password).encode("utf-8")],
+            "userPassword": [hash_password(password).encode("utf-8") if hash_pw else password.encode("utf-8")],
         }
     )
     dn = f"cn={username},{dn}"
