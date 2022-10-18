@@ -4,10 +4,10 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"gorm.io/gorm/utils"
 
 	l "github.com/go-ldap/ldap/v3"
 	"gorm.io/gorm"
+	"gorm.io/gorm/utils"
 
 	"github.com/myOmikron/bnv-manager/models/config"
 	"github.com/myOmikron/bnv-manager/models/dbmodels"
@@ -62,6 +62,7 @@ func Authenticate(username string, password string, db *gorm.DB, config *config.
 		u.DN = userDN
 		u.IsAdmin = utils.Contains(memberOf, config.LDAP.AdminGroupDN)
 		u.IsClubAdmin = utils.Contains(memberOf, config.LDAP.ClubAdminGroupDN)
+		u.Username = username
 		db.Create(&u)
 	} else {
 		u.IsAdmin = utils.Contains(memberOf, config.LDAP.AdminGroupDN)

@@ -2,10 +2,10 @@ package server
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/myOmikron/bnv-manager/handler"
 	"github.com/myOmikron/echotools/middleware"
 	"gorm.io/gorm"
 
+	"github.com/myOmikron/bnv-manager/handler"
 	"github.com/myOmikron/bnv-manager/models/config"
 )
 
@@ -31,6 +31,7 @@ func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config) {
 	}
 
 	e.POST("/api/login", api.Login)
+	e.GET("/api/me", loginRequired(api.Me))
 
 	e.Static("/", "static/")
 }

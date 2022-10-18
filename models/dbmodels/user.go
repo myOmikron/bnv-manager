@@ -11,8 +11,9 @@ import (
 type User struct {
 	utilitymodels.Common
 	DN          string `gorm:"unique"`
-	IsClubAdmin bool   `gorm:"not null"`
-	IsAdmin     bool   `gorm:"not null"`
+	Username    string
+	IsClubAdmin bool `gorm:"not null"`
+	IsAdmin     bool `gorm:"not null"`
 	LastLogin   *time.Time
 }
 
