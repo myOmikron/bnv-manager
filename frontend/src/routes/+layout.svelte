@@ -6,7 +6,9 @@
 		return res;
 	}
 
-	window.showLoading = showLoading;
+	window.bnv = {
+		showLoading: showLoading
+	};
 
 	function startLoading() {
 		(<any>document.getElementById("loading-indicator")).style.display = "";

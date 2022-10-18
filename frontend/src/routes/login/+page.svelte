@@ -10,7 +10,11 @@
 		try
 		{
 			let data = new FormData(form);
-			let res = await showLoading(login(data.get("username"), data.get("password")));
+			let username = data.get("username");
+			let password = data.get("password");
+			if (typeof username != "string" || typeof password != "string")
+				throw new Error("Unexpected Form data types");
+			let res = await window.bnv.showLoading(login(username, password));
 			if (res) {
 				goto("/app");
 			} else {

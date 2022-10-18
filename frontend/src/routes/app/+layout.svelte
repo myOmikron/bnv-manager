@@ -7,7 +7,7 @@
 
 	async function doLogout() {
 		console.log("logout");
-		await showLoading(logout());
+		await window.bnv.showLoading(logout());
 		goto("/login");
 	}
 </script>
