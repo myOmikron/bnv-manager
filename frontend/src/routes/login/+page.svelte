@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { getAccount, login } from '../../lib/user';
+	import { goto } from "$app/navigation";
+	import { getAccount, login } from "../../lib/user";
 
-	getAccount().then(acc => acc ? goto("/app") : null);
+	let invalidForm = false;
+
+	getAccount().then((acc) => (acc ? goto("/app") : null));
 	async function handleSubmit(event: SubmitEvent) {
 		let form = <HTMLFormElement>event.target;
-		form.classList.remove("invalid");
+		invalidForm = false;
 		form.disabled = true;
-		try
-		{
+		try {
 			let data = new FormData(form);
 			let username = data.get("username");
 			let password = data.get("password");
@@ -18,15 +19,34 @@
 			if (res) {
 				goto("/app");
 			} else {
-				form.classList.add("invalid");
+				invalidForm = true;
 			}
-		}
-		finally
-		{
+		} finally {
 			form.disabled = false;
 		}
 	}
 </script>
+
+<div class="loginpage">
+	<h1>Login</h1>
+	<form
+		class="login"
+		method="post"
+		class:invalid={invalidForm}
+		on:submit|preventDefault={handleSubmit}
+	>
+		<label>
+			<span>Benutzername</span>
+			<input name="username" type="text" />
+		</label>
+		<label>
+			<span>Passwort</span>
+			<input name="password" type="password" />
+		</label>
+		<input type="submit" value="Login" />
+	</form>
+</div>
+
 <style>
 	form.invalid:before {
 		content: "[invalid]";
@@ -34,15 +54,3 @@
 		display: block;
 	}
 </style>
-<form class="login" method="post" on:submit|preventDefault={handleSubmit}>
-	<h1>Login</h1>
-	<label>
-		<span>Benutzername</span>
-		<input name="username" type="text">
-	</label>
-	<label>
-		<span>Passwort</span>
-		<input name="password" type="password">
-	</label>
-	<input type="submit" value="Login">
-</form>
