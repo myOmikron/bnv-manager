@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { LayoutLoad } from './$types';
+	import type { LayoutData } from "./$types";
 	import { logout } from '$lib/user';
-    import { goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 
-	export let data: LayoutLoad;
+	export let data: LayoutData;
 
 	async function doLogout() {
 		console.log("logout");
