@@ -31,6 +31,8 @@ func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config) {
 	}
 
 	e.POST("/api/login", api.Login)
+	e.GET("/api/logout", api.Logout)
+	
 	e.GET("/api/me", loginRequired(api.Me))
 
 	e.Static("/", "static/")
