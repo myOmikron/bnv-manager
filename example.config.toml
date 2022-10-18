@@ -30,3 +30,23 @@ Host = ""
 Port = 0
 User = ""
 Password = ""
+
+[LDAP]
+# Specify the LDAP server uri, e.g. ldaps://ldap.example.com
+ServerURI = ""
+# As bnv-manager must have access to the hashed password in LDAP,
+# make sure to bind a user with the permission to retrieve the passwords.
+#
+# It is only used to synchronize the passwords to mailcow
+AdminBindUser = ""
+AdminBindPassword = ""
+# The read-only user is used for querying users for login
+ROBindUser = ""
+ROBindPassword = ""
+UserSearchBase = ""
+# Normal LDAP filter. Use %s to insert the username.
+UserSearchFilter = "(&(objectClass=inetOrgPerson)(uid=%s))"
+# The group to query to check if the user is a club admin
+ClubAdminGroupDN = ""
+# The group to query to check if the user is an admin
+AdminGroupDN = ""

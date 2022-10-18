@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/hellflame/argparse"
 
 	"github.com/myOmikron/bnv-manager/server"

@@ -1,12 +1,12 @@
 package server
 
 import (
+	"github.com/myOmikron/bnv-manager/models/dbmodels"
 	"net/url"
 
 	"github.com/labstack/echo/v4"
 	emw "github.com/labstack/echo/v4/middleware"
 	mw "github.com/myOmikron/echotools/middleware"
-	"github.com/myOmikron/echotools/utilitymodels"
 	"gorm.io/gorm"
 
 	"github.com/myOmikron/bnv-manager/models/config"
@@ -44,5 +44,18 @@ func initializeMiddleware(e *echo.Echo, db *gorm.DB, conf *config.Config) {
 		CookieName: "sessionid",
 	}))
 
-	mw.RegisterAuthProvider(utilitymodels.GetLDAPUser(db))
+	mw.RegisterAuthProvider(func() (string, func(foreignKey uint) any) {
+		return "bnv_ldap", func(foreignKey uint) any {
+			var user dbmodels.User
+
+			var count int64
+			db.Find(&user, "ID = ?", foreignKey).Count(&count)
+
+			if count != 1 {
+				return nil
+			}
+
+			return &user
+		}
+	})
 }

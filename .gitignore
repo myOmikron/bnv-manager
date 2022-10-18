@@ -1,5 +1,6 @@
 .idea/
 .vscode/
+.vagrant/
 config.toml
 *.sqlite3
 *.db

@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/myOmikron/bnv-manager/models/dbmodels"
 	"net"
 	"net/url"
 	"strconv"
@@ -45,5 +46,7 @@ func initializeDB(config *config.Config) *gorm.DB {
 
 	return database.Initialize(
 		driver,
+
+		&dbmodels.User{},
 	)
 }

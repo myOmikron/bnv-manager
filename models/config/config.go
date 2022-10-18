@@ -45,9 +45,22 @@ type Database struct {
 	Password string
 }
 
+type LDAP struct {
+	ServerURI         string
+	AdminBindUser     string
+	AdminBindPassword string
+	ROBindUser        string
+	ROBindPassword    string
+	UserSearchBase    string
+	UserSearchFilter  string
+	ClubAdminGroupDN  string
+	AdminGroupDN      string
+}
+
 type Config struct {
 	Server   Server
 	Database Database
+	LDAP     LDAP
 }
 
 func (conf *Config) CheckConfig() error {
