@@ -3,9 +3,10 @@
 
 	export let message: string;
 	export let error: any;
+	export let light: boolean = false;
 </script>
 
-<div class="error">
+<div class:error={!light}>
 	<p class="msg">
 		{message}
 	</p>
@@ -26,7 +27,7 @@
 		box-sizing: border-box;
 	}
 
-	.msg {
+	.error .msg {
 		margin-top: 0;
 	}
 

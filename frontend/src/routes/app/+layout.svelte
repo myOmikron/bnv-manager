@@ -31,7 +31,7 @@
 			kind="ghost"
 			icon={ArrowLeft}
 			iconDescription="Zurück"
-			on:click={() => window.history.back()}
+			href={$page.data.parentPage || ".."}
 		/>
 		<div class="h1">
 			<h1>{pageTitle}</h1>

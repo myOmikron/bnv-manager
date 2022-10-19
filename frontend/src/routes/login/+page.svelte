@@ -9,6 +9,7 @@
 		Form,
 	} from "carbon-components-svelte";
 	import Login from "carbon-icons-svelte/lib/Login.svelte";
+    import Tiles from "$lib/components/Tiles.svelte";
 
 	getAccount().then((acc) => (acc ? goto("/app") : null));
 	async function handleSubmit(event: SubmitEvent) {
@@ -33,49 +34,38 @@
 </script>
 
 <div class="login-page">
-	<Tile class="tile">
-		<h2>Bürgernetzverband &ndash; Verwaltung</h2>
-		<Form class="fluid-form" on:submit={handleSubmit}>
-			<TextInput
-				light
-				size="xl"
-				name="username"
-				labelText="Username"
-				placeholder="Enter your username..."
-				required
-				tab-index="0"
-			/>
-			<PasswordInput
-				light
-				size="xl"
-				name="password"
-				labelText="Password"
-				placeholder="Enter your password..."
-				required
-				type="password"
-			/>
-			<Button iconDescription="Login" icon={Login} type="submit">
-				Login
-			</Button>
-		</Form>
-	</Tile>
+	<Tiles>
+		<Tile>
+			<h2>Bürgernetzverband &ndash; Verwaltung</h2>
+			<Form class="fluid-form" on:submit={handleSubmit}>
+				<TextInput
+					light
+					size="xl"
+					name="username"
+					labelText="Username"
+					placeholder="Enter your username..."
+					required
+					tab-index="0"
+				/>
+				<PasswordInput
+					light
+					size="xl"
+					name="password"
+					labelText="Password"
+					placeholder="Enter your password..."
+					required
+					type="password"
+				/>
+				<Button iconDescription="Login" icon={Login} type="submit">
+					Login
+				</Button>
+			</Form>
+		</Tile>
+	</Tiles>
 </div>
 
 <style>
-	.login-page {
-		display: block;
-		margin: 0 auto;
-		width: 100%;
-		max-width: 500px;
-	}
-
-	.login-page > :global(.tile) {
-		margin-top: 3em;
-		padding: 2em;
-	}
-
-	.login-page h2 {
-		padding-bottom: 1em;
+	h2 {
 		text-align: center;
 	}
 
@@ -85,14 +75,8 @@
 	}
 
 	@media screen and (max-width: 500px) {
-		.login-page > :global(.tile) {
-			margin-top: 0;
-			padding: 1em 4pt;
-		}
-
 		.login-page :global(.fluid-form) {
 			width: 100%;
-			margin: auto;
 		}
 	}
 </style>

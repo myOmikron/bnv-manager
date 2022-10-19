@@ -6,94 +6,76 @@
 	import UserAvatar from "carbon-icons-svelte/lib/UserAvatar.svelte";
 	import Group from "carbon-icons-svelte/lib/Group.svelte";
 	import GroupPresentation from "carbon-icons-svelte/lib/GroupPresentation.svelte";
+	import Tiles from "$lib/components/Tiles.svelte";
 
 	export let data: LayoutData;
 </script>
 
-<div class="overview">
-	<Tile class="tile">
+<Tiles>
+	<Tile>
 		<h2>Bürgernetz Verwaltung</h2>
 		<p class="username">
 			{data.account?.username || "(bitte neu anmelden)"}
 		</p>
 
-		<ButtonSet stacked class="buttonSet">
-			{#if data.account?.isUser}
-				<Button icon={Email} kind="ghost" href="/app/email">
-					E-Mail
+		<div class="buttons">
+			<ButtonSet stacked class="buttonSet">
+				{#if data.account?.isUser}
+					<Button icon={Email} kind="ghost" href="/app/email">
+						E-Mail
+					</Button>
+					<Button icon={Wikis} kind="ghost" href="/app/webspace">
+						{data.account?.isClubAdmin
+							? "Benutzer-Webspace"
+							: "Webspace"}
+					</Button>
+				{/if}
+				{#if data.account?.isClubAdmin}
+					<Button icon={Group} kind="ghost" href="/app/club/users">
+						Benutzerverwaltung
+					</Button>
+					<Button icon={Wikis} kind="ghost" href="/app/club/webspace">
+						{data.account?.isUser ? "Vereins-Webspace" : "Webspace"}
+					</Button>
+				{/if}
+				{#if data.account?.isAdmin}
+					<Button
+						icon={GroupPresentation}
+						kind="ghost"
+						href="/app/admin"
+					>
+						Vereinsverwaltung
+					</Button>
+				{/if}
+				<Button icon={UserAvatar} kind="ghost" href="/app/account">
+					Account
 				</Button>
-				<Button icon={Wikis} kind="ghost" href="/app/webspace">
-					{data.account?.isClubAdmin ? "Benutzer-Webspace" : "Webspace"}
-				</Button>
-			{/if}
-			{#if data.account?.isClubAdmin}
-				<Button icon={Group} kind="ghost" href="/app/club/users">
-					Benutzerverwaltung
-				</Button>
-				<Button icon={Wikis} kind="ghost" href="/app/club/webspace">
-					{data.account?.isUser ? "Vereins-Webspace" : "Webspace"}
-				</Button>
-			{/if}
-			{#if data.account?.isAdmin}
-				<Button icon={GroupPresentation} kind="ghost" href="/app/admin">
-					Vereinsverwaltung
-				</Button>
-			{/if}
-			<Button icon={UserAvatar} kind="ghost" href="/app/account">
-				Account
-			</Button>
-		</ButtonSet>
+			</ButtonSet>
+		</div>
 	</Tile>
-</div>
+</Tiles>
 
 <style>
-	.overview {
-		display: block;
-		margin: 1em auto;
-		width: 100%;
-		max-width: 500px;
+	h2, .username {
 		text-align: center;
 	}
 
-	.overview > :global(.tile) {
-		padding: 3em;
-		min-width: 0;
-	}
-
-	@media screen and (max-width: 500px) {
-		.overview {
-			margin-top: 0;
-		}
-
-		.overview > :global(.tile) {
-			padding: 1em 4pt;
-		}
-
-		.overview h2 {
-			padding: 0 50px; /* for still showing UI buttons */
-		}
-	}
-
-	.overview h2 {
-		margin-bottom: 1rem;
-	}
-
-	.overview .username {
+	.username {
 		color: var(--cds-text-02);
 		margin-bottom: 1rem;
 	}
 
-	.overview :global(.buttonSet),
-	.overview :global(.buttonSet > a) {
+	.buttons :global(.buttonSet),
+	.buttons :global(.buttonSet > a) {
 		width: 100%;
 		max-width: unset;
 	}
 
-	.overview :global(.buttonSet > a) {
+	.buttons :global(.buttonSet > a) {
 		justify-content: flex-start;
 	}
 
-	.overview :global(.buttonSet > a > svg) {
+	.buttons :global(.buttonSet > a > svg) {
 		order: -1;
 		margin-right: 16px;
 	}

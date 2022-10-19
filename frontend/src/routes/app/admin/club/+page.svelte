@@ -26,6 +26,8 @@
         DataTableValue,
     } from "carbon-components-svelte/types/DataTable/DataTable.svelte";
     import FormDialog from "$lib/components/FormDialog.svelte";
+    import PageError from "$lib/components/PageError.svelte";
+    import Tiles from "$lib/components/Tiles.svelte";
 
     let clubId = data.clubId;
 
@@ -80,10 +82,13 @@
     );
 
     let rowsLoaded = false;
+    let rowsError: any;
     let rows: DataTableRow[] = [];
     rowsPromise.then((r) => {
         rowsLoaded = true;
         rows = r;
+    }).catch((e) => {
+        rowsError = e;
     });
     let naProcess = (v: DataTableValue) =>
         typeof v == "undefined" ? "n/a" : v;
@@ -121,11 +126,17 @@
     };
 </script>
 
-<div id="page">
+<Tiles style="max-width: 1200px">
     <Tile>
         <h2>Vereins-Admins</h2>
 
-        {#if rowsLoaded}
+        {#if rowsError}
+            <PageError
+                light
+                error={rowsError}
+                message="Fehler beim Laden der Admins"
+            />
+        {:else if rowsLoaded}
             <DataTable bind:selectedRowIds batchSelection {headers} {rows}>
                 <Toolbar>
                     <ToolbarBatchActions
@@ -166,7 +177,7 @@
             Verein Löschen
         </Button>
     </Tile>
-</div>
+</Tiles>
 
 <FormDialog
     bind:open={showCreateClubAdmin}
@@ -271,15 +282,6 @@
 </FormDialog>
 
 <style>
-    #page {
-        max-width: 1200px;
-        margin: 1em auto;
-    }
-
-    #page > :global(*) {
-        margin-bottom: 1em;
-    }
-
     .gen-password {
         display: flex;
         align-items: flex-start;
