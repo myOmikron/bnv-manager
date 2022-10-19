@@ -22,7 +22,7 @@ func HashPassword(password string) (*string, error) {
 	return &s, nil
 }
 
-var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
+var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-Z0-9]+`)
 
 func GenerateUsername(firstname string, surname string, config *config.Config) (username *string, err error) {
 	if len(firstname) == 0 && len(surname) == 0 {
