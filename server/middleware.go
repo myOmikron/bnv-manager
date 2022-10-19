@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/url"
+	"regexp"
 
 	"github.com/labstack/echo/v4"
 	emw "github.com/labstack/echo/v4/middleware"
@@ -13,6 +14,13 @@ import (
 )
 
 func initializeMiddleware(e *echo.Echo, db *gorm.DB, conf *config.Config) {
+
+	e.Pre(emw.RewriteWithConfig(emw.RewriteConfig{
+		RegexRules: map[*regexp.Regexp]string{
+			regexp.MustCompile("^(/?(?:(?:[^/a\\n][^/\\n]*|a[^/p\\n][^/\\n]*|ap[^/i\\n][^/\\n]*|api[^/\\n]+)/(?:[^/\\n]+/)*[^./\\n]+|[^./\\n]+))$"): "$1.html",
+		},
+	}))
+
 	e.Use(emw.Recover())
 
 	logFormat := "${remote_ip} - - [${time_custom}] \"${method} ${path} ${protocol}\" ${status} ${bytes_out}\n"
@@ -42,8 +50,10 @@ func initializeMiddleware(e *echo.Echo, db *gorm.DB, conf *config.Config) {
 
 	e.Use(emw.BodyLimit("5MB"))
 
+	f := false
 	e.Use(mw.Session(db, &mw.SessionConfig{
 		CookieName: "sessionid",
+		Secure:     &f,
 	}))
 
 	mw.RegisterAuthProvider(func() (string, func(foreignKey uint) any) {

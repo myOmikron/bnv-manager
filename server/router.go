@@ -1,18 +1,19 @@
 package server
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/myOmikron/bnv-manager/models/dbmodels"
-	"github.com/myOmikron/echotools/middleware"
-	"gorm.io/gorm"
-
 	"github.com/myOmikron/bnv-manager/handler"
 	"github.com/myOmikron/bnv-manager/models/config"
+	"github.com/myOmikron/bnv-manager/models/dbmodels"
+	mw "github.com/myOmikron/echotools/middleware"
+	"github.com/myOmikron/echotools/worker"
+	"gorm.io/gorm"
 )
 
 func loginRequired(f echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sessionContext, err := middleware.GetSessionContext(c)
+		sessionContext, err := mw.GetSessionContext(c)
 		if err != nil {
 			return c.String(500, "Internal server error")
 		}
@@ -27,13 +28,17 @@ func loginRequired(f echo.HandlerFunc) echo.HandlerFunc {
 
 func adminRequired(f echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sessionContext, err := middleware.GetSessionContext(c)
+		sessionContext, err := mw.GetSessionContext(c)
 		if err != nil {
+			c.Logger().Error(err)
 			return c.String(500, "Internal server error")
 		}
 
-		user := sessionContext.GetUser()
-		switch u := user.(type) {
+		if !sessionContext.IsAuthenticated() {
+			return c.String(401, "Authentication is required")
+		}
+
+		switch u := sessionContext.GetUser().(type) {
 		case *dbmodels.User:
 			if u.IsAdmin {
 				return f(c)

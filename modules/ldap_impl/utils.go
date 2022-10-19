@@ -213,7 +213,7 @@ func CheckIfClubExists(name string, config *config.Config) (*string, error) {
 		config.LDAP.ClubSearchBase,
 		l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
 		fmt.Sprintf(config.LDAP.ClubSearchFilter, l.EscapeFilter(name)),
-		[]string{"dn"},
+		nil,
 		nil,
 	))
 	if err != nil {
@@ -221,8 +221,7 @@ func CheckIfClubExists(name string, config *config.Config) (*string, error) {
 	}
 
 	if len(sr.Entries) == 1 {
-		dn := sr.Entries[0].GetAttributeValue("dn")
-		return &dn, nil
+		return &sr.Entries[0].DN, nil
 	}
 	return nil, nil
 }

@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/myOmikron/bnv-manager/modules/ldap_impl"
 	"github.com/myOmikron/echotools/utility"
+
+	"github.com/myOmikron/bnv-manager/modules/ldap_impl"
 )
 
 type createClubAdminRequest struct {
@@ -45,6 +47,7 @@ func (w *Wrapper) CreateClubAdmin(c echo.Context) error {
 		return c.String(500, "LDAP Error")
 	}
 
+	fmt.Println(*groupDN)
 	if err := ldap_impl.AddDNToGroup(*dn, *groupDN, w.Config); err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
