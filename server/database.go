@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"github.com/myOmikron/bnv-manager/models/dbmodels"
 	"net"
 	"net/url"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/myOmikron/bnv-manager/models/config"
+	"github.com/myOmikron/bnv-manager/models/dbmodels"
 )
 
 func initializeDB(config *config.Config) *gorm.DB {

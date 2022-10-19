@@ -2,20 +2,22 @@ package handler
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/myOmikron/echotools/utility"
-	
 	"github.com/myOmikron/bnv-manager/modules/ldap_impl"
 )
 
 type deleteClubRequest struct {
-	ClubID *string `json:"club_id" echotools:"required;not empty"`
+	ClubID string `query:"club_id"`
 }
 
 func (w *Wrapper) DeleteClub(c echo.Context) error {
 	form := deleteClubRequest{}
 
-	if err := utility.ValidateJsonForm(c, &form); err != nil {
+	if err := c.Bind(&form); err != nil {
 		return c.String(400, err.Error())
+	}
+
+	if form.ClubID == "" {
+		return c.String(400, "Parameter club_id must not be empty")
 	}
 
 	if err := ldap_impl.DeleteClub(*form.ClubID, w.Config); err != nil {

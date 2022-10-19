@@ -2,8 +2,9 @@ package handler
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/myOmikron/bnv-manager/modules/ldap_impl"
 	"github.com/myOmikron/echotools/utility"
+
+	"github.com/myOmikron/bnv-manager/modules/ldap_impl"
 )
 
 type createClubRequest struct {
