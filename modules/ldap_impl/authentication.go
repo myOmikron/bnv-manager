@@ -1,7 +1,6 @@
 package ldap_impl
 
 import (
-	"crypto/tls"
 	"errors"
 	"fmt"
 
@@ -16,9 +15,9 @@ import (
 func Authenticate(username string, password string, db *gorm.DB, config *config.Config) (*dbmodels.User, error) {
 	var u dbmodels.User
 
-	tlsConfig := l.DialWithTLSConfig(&tls.Config{InsecureSkipVerify: true})
-	conn, err := l.DialURL(config.LDAP.ServerURI, tlsConfig)
+	conn, err := l.DialURL(config.LDAP.ServerURI)
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 	defer conn.Close()

@@ -46,6 +46,9 @@ ROBindPassword = ""
 UserSearchBase = ""
 # Normal LDAP filter. Use %s to insert the username.
 UserSearchFilter = "(&(objectClass=inetOrgPerson)(uid=%s))"
+ClubSearchBase = ""
+# Normal LDAP filter. Use %s to insert the club abbreviation.
+ClubSearchFilter = "(&(objectClass=groupOfNames)(cn=%s))"
 # The group to query to check if the user is a club admin
 ClubAdminGroupDN = ""
 # The group to query to check if the user is an admin

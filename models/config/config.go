@@ -53,6 +53,8 @@ type LDAP struct {
 	ROBindPassword    string
 	UserSearchBase    string
 	UserSearchFilter  string
+	ClubSearchBase    string
+	ClubSearchFilter  string
 	ClubAdminGroupDN  string
 	AdminGroupDN      string
 }
