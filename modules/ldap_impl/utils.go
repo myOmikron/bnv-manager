@@ -300,3 +300,44 @@ func CreateClub(id string, name string, config *config.Config) error {
 
 	return nil
 }
+
+func DeleteClub(id string, config *config.Config) error {
+	conn, err := l.DialURL(config.LDAP.ServerURI)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
+		return err
+	}
+	defer conn.Unbind()
+
+	clubDN := fmt.Sprintf("cn=%s,%s", l.EscapeFilter(id), config.LDAP.ClubSearchBase)
+
+	sr, err := conn.Search(
+		l.NewSearchRequest(
+			config.LDAP.UserSearchBase,
+			l.ScopeSingleLevel,
+			l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf("(&(objectClass=inetOrgPerson)(memberOf=%s))", clubDN),
+			[]string{"dn"},
+			nil,
+		),
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := conn.Del(l.NewDelRequest(clubDN, nil)); err != nil {
+		return err
+	}
+
+	for _, entry := range sr.Entries {
+		if err := conn.Del(l.NewDelRequest(entry.DN, nil)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

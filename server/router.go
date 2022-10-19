@@ -66,6 +66,7 @@ func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config) {
 
 	e.GET("/api/clubs", adminRequired(api.GetClubs))
 	e.POST("/api/clubs", adminRequired(api.CreateClub))
+	e.DELETE("/api/clubs", adminRequired(api.DeleteClub))
 
 	e.Static("/", "static/")
 }
