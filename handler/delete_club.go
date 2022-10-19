@@ -20,7 +20,7 @@ func (w *Wrapper) DeleteClub(c echo.Context) error {
 		return c.String(400, "Parameter club_id must not be empty")
 	}
 
-	if err := ldap_impl.DeleteClub(*form.ClubID, w.Config); err != nil {
+	if err := ldap_impl.DeleteClub(form.ClubID, w.Config); err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}
