@@ -29,18 +29,10 @@
 </script>
 
 <style>
-    :global(html) {
-        --level-0: #1a1a1a;
-        --level-1: #242424;
-        --level-2: #2d2d2d;
-        --level-3: #343434;
-        --level-4: #3a3a3a;
-        --text-disabled: #8f8f8f;
-        --text: #e8e8e8;
-        --prim: #ff7f50;
-        --prim-dark: #e98966;
-        --error: #f22939;
-    }
+	:global(.bx--label) {
+		margin-top: .5rem;
+		margin-bottom: 0;
+	}
 
 	#loading-indicator {
 		display: block;
