@@ -1,4 +1,4 @@
-interface ClubAdminResponse {
+export interface ClubAdminResponse {
     username: null | string,
     error: null | string,
     success: boolean

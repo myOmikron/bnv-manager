@@ -1,16 +1,51 @@
 <script lang="ts">
 
-    import { createClubAdmin } from '../../../lib/admin';
+    import {createClubAdmin} from '$lib/admin';
+    import type {ClubAdminResponse} from '$lib/admin';
 
-    async function handleGeneratePasswordButton(event) {
+    async function handleGeneratePasswordButton(event: PointerEvent) {
         // TODO
         console.log("generate password button");
         alert("not implemented yet");
     }
 
-    async function handleCreateClubAdmin(event: SubmitEvent) {
+    function showSuccessPopUp(message: string) {
+        // TODO: Build something like a toast or something
+        alert(message);
+    }
+
+    function showErrorPopUp(message: string) {
+        // TODO: Build something like a toast or something
+        alert(message);
+    }
+
+    async function spinLoadingButton<T>(promise: Promise<T>): Promise<T> {
         // TODO
-        console.log("handle create club admin submit")
+        console.log("password button: start loading");
+        let res = await promise;
+        console.log("password button: stop loading");
+        return res;
+    }
+
+    async function handleCreateClubAdmin(event: SubmitEvent) {
+        let form = <HTMLFormElement>event.target;
+        form.disabled = true;
+        try {
+            let data = new FormData(form);
+            let res: ClubAdminResponse = await spinLoadingButton(createClubAdmin(
+                data.get("firstname").toString(),
+                data.get("surname").toString(),
+                data.get("password").toString(),
+                data.get("club_id").toString()
+            ));
+            if (res.success) {
+                showSuccessPopUp(`Nutzer ${res.username} wurde erstellt!`);
+            } else {
+                showErrorPopUp(`Nutzer wurde nicht angelegt: ${res.error}!`);
+            }
+        } finally {
+            form.disabled = false;
+        }
     }
 </script>
 
@@ -31,7 +66,7 @@
             </label>
             <label>
                 <span>Vereins-ID</span>
-                <input name="surname" type="text" />
+                <input name="club_id" type="text" />
             </label>
             <br/>
             <label>
