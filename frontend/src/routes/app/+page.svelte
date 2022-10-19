@@ -3,7 +3,9 @@
 	import { ButtonSet, Button, Tile } from "carbon-components-svelte";
 	import Email from "carbon-icons-svelte/lib/Email.svelte";
 	import Wikis from "carbon-icons-svelte/lib/Wikis.svelte";
-	import User from "carbon-icons-svelte/lib/User.svelte";
+	import UserAvatar from "carbon-icons-svelte/lib/UserAvatar.svelte";
+	import Group from "carbon-icons-svelte/lib/Group.svelte";
+	import GroupPresentation from "carbon-icons-svelte/lib/GroupPresentation.svelte";
 
 	export let data: LayoutData;
 </script>
@@ -17,16 +19,29 @@
 
 		<ButtonSet stacked class="buttonSet">
 			{#if data.account?.isUser}
-				<Button icon={Email} kind="ghost" href="/app/email"
-					>E-Mail</Button
-				>
-				<Button icon={Wikis} kind="ghost" href="/app/webspace"
-					>Webspace</Button
-				>
+				<Button icon={Email} kind="ghost" href="/app/email">
+					E-Mail
+				</Button>
+				<Button icon={Wikis} kind="ghost" href="/app/webspace">
+					{data.account?.isClubAdmin ? "Benutzer-Webspace" : "Webspace"}
+				</Button>
 			{/if}
-			<Button icon={User} kind="ghost" href="/app/account"
-				>Account</Button
-			>
+			{#if data.account?.isClubAdmin}
+				<Button icon={Group} kind="ghost" href="/app/club/users">
+					Benutzerverwaltung
+				</Button>
+				<Button icon={Wikis} kind="ghost" href="/app/club/webspace">
+					{data.account?.isUser ? "Vereins-Webspace" : "Webspace"}
+				</Button>
+			{/if}
+			{#if data.account?.isAdmin}
+				<Button icon={GroupPresentation} kind="ghost" href="/app/admin">
+					Clubverwaltung
+				</Button>
+			{/if}
+			<Button icon={UserAvatar} kind="ghost" href="/app/account">
+				Account
+			</Button>
 		</ButtonSet>
 	</Tile>
 </div>
