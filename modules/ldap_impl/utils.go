@@ -159,8 +159,9 @@ func CreateUser(
 }
 
 type Club struct {
-	DN string
-	CN string
+	DN          string
+	CN          string
+	Description string
 }
 
 func GetAllClubs(config *config.Config) ([]Club, error) {
@@ -179,7 +180,7 @@ func GetAllClubs(config *config.Config) ([]Club, error) {
 		config.LDAP.ClubSearchBase,
 		l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
 		fmt.Sprintf(config.LDAP.ClubSearchFilter, "*"),
-		[]string{"dn", "cn"},
+		[]string{"dn", "cn", "description"},
 		nil,
 	))
 	if err != nil {
@@ -189,8 +190,9 @@ func GetAllClubs(config *config.Config) ([]Club, error) {
 	groupDNs := make([]Club, 0)
 	for _, entry := range sr.Entries {
 		groupDNs = append(groupDNs, Club{
-			DN: entry.GetAttributeValue("dn"),
-			CN: entry.GetAttributeValue("cn"),
+			DN:          entry.GetAttributeValue("dn"),
+			CN:          entry.GetAttributeValue("cn"),
+			Description: entry.GetAttributeValue("description"),
 		})
 	}
 

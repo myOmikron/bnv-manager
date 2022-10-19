@@ -6,8 +6,13 @@ import (
 	"github.com/myOmikron/bnv-manager/modules/ldap_impl"
 )
 
+type club struct {
+	ClubID   string `json:"club_id"`
+	ClubName string `json:"club_name"`
+}
+
 type getClubsResponse struct {
-	Clubs []string `json:"clubs"`
+	Clubs []club `json:"clubs"`
 }
 
 func (w *Wrapper) GetClubs(c echo.Context) error {
@@ -17,9 +22,12 @@ func (w *Wrapper) GetClubs(c echo.Context) error {
 		return c.String(500, "LDAP Error")
 	}
 
-	res := getClubsResponse{Clubs: make([]string, 0)}
-	for _, club := range clubs {
-		res.Clubs = append(res.Clubs, club.CN)
+	res := getClubsResponse{Clubs: make([]club, 0)}
+	for _, c := range clubs {
+		res.Clubs = append(res.Clubs, club{
+			ClubID:   c.CN,
+			ClubName: c.Description,
+		})
 	}
 
 	return c.JSON(200, res)
