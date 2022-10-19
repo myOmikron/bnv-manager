@@ -1,4 +1,6 @@
 <script lang="ts">
+	import "carbon-components-svelte/css/all.css";
+
 	export async function showLoading<T>(promise: Promise<T>): Promise<T> {
 		startLoading();
 		let res = await promise;
@@ -7,8 +9,15 @@
 	}
 
 	window.bnv = {
-		showLoading: showLoading
+		showLoading: showLoading,
+		setTheme: (theme) => document.documentElement.setAttribute("theme", theme)
 	};
+
+	const dark_mode_enabled = () =>
+		window.matchMedia &&
+		window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+	window.bnv.setTheme(dark_mode_enabled() ? "g90" : "white");
 
 	function startLoading() {
 		(<any>document.getElementById("loading-indicator")).style.display = "";

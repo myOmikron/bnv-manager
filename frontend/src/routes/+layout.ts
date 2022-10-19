@@ -13,6 +13,7 @@ declare global {
 	 */
 	interface BNVManager {
 		showLoading<T>(promise: Promise<T>): Promise<T>;
+		setTheme(theme: "white" | "g10" | "g80" | "g90" | "g100"): void;
 	}
 }
 
