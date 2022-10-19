@@ -1,93 +1,295 @@
 <script lang="ts">
+    import { createClubAdmin } from "$lib/admin";
+    import type { ClubAdminResponse } from "$lib/admin";
 
-    import {createClubAdmin} from '$lib/admin';
-    import type {ClubAdminResponse} from '$lib/admin';
+    import {
+        Button,
+        DataTable,
+        DataTableSkeleton,
+        Modal,
+        PasswordInput,
+        ProgressBar,
+        TextInput,
+        Tile,
+        Toolbar,
+        ToolbarBatchActions,
+        ToolbarContent,
+        ToolbarSearch,
+    } from "carbon-components-svelte";
+    import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
+    import Renew from "carbon-icons-svelte/lib/Renew.svelte";
+    import type {
+        DataTableHeader,
+        DataTableRow,
+    } from "carbon-components-svelte/types/DataTable/DataTable.svelte";
 
-    async function handleGeneratePasswordButton(event: PointerEvent) {
-        // TODO
-        console.log("generate password button");
-        alert("not implemented yet");
-    }
+    const pwdChars =
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_'/.,<>:;[]{}";
+    async function handleGeneratePasswordButton(event: MouseEvent) {
+        const random = new Uint32Array(16);
+        for (let i = 0; i < 10; i++) {
+            if (window.Crypto && window.crypto)
+                window.crypto.getRandomValues(random);
+            else
+                for (let n = 0; n < 16; n++)
+                    random[n] = Math.floor(Math.random() * pwdChars.length);
 
-    function showSuccessPopUp(message: string) {
-        // TODO: Build something like a toast or something
-        alert(message);
-    }
-
-    function showErrorPopUp(message: string) {
-        // TODO: Build something like a toast or something
-        alert(message);
-    }
-
-    async function spinLoadingButton<T>(promise: Promise<T>): Promise<T> {
-        // TODO
-        console.log("password button: start loading");
-        let res = await promise;
-        console.log("password button: stop loading");
-        return res;
-    }
-
-    async function handleCreateClubAdmin(event: SubmitEvent) {
-        let form = <HTMLFormElement>event.target;
-        form.disabled = true;
-        try {
-            let data = new FormData(form);
-            let res: ClubAdminResponse = await spinLoadingButton(createClubAdmin(
-                data.get("firstname").toString(),
-                data.get("surname").toString(),
-                data.get("password").toString(),
-                data.get("club_id").toString()
-            ));
-            if (res.success) {
-                showSuccessPopUp(`Nutzer ${res.username} wurde erstellt!`);
-            } else {
-                showErrorPopUp(`Nutzer wurde nicht angelegt: ${res.error}!`);
+            let password = "";
+            for (let n = 0; n < 16; n++)
+                password += pwdChars[random[n] % pwdChars.length];
+            if (validatePasswordImpl(password).length == 0) {
+                createData.password = password;
+                break;
             }
+        }
+        createData.passwordVisible = true;
+    }
+
+    function validatePassword(event: InputEvent): void {
+        let errors = validatePasswordImpl(
+            (<HTMLInputElement>event.target).value
+        );
+        createData.passwordInvalid = errors.length > 0;
+        createData.passwordInvalidText = errors.join("\n");
+    }
+
+    function validatePasswordImpl(password: string): string[] {
+        if (!password.length) return [];
+        let ret: string[] = [];
+        let hasUpper, hasLower, hasSpecial;
+        for (let i = 0; i < password.length; i++) {
+            const c = password[i];
+            if (c >= "a" && c <= "z") hasLower = true;
+            else if (c >= "A" && c <= "Z") hasUpper = true;
+            else hasSpecial = true;
+        }
+        if (password.length < 12)
+            ret.push("Passwort muss mindestens 12 Zeichen lang sein");
+        if (!hasLower || !hasUpper)
+            ret.push("Passwort muss Klein und Großbuchstaben beinhalten");
+        if (!hasSpecial)
+            ret.push("Passwort muss mindestens ein Sonderzeichen beinhalten");
+        return ret;
+    }
+
+    let rowsPromise: Promise<DataTableRow[]> = new Promise((resolve) =>
+        setTimeout(
+            () =>
+                resolve([
+                    {
+                        id: "u0",
+                        firstname: "Alice",
+                        surname: "Mustermann",
+                        username: "max.mustermann",
+                        email: "max.mustermann@pfaffenhofen.de",
+                    },
+                    {
+                        id: "u1",
+                        firstname: "Bob",
+                        surname: "Mustermann",
+                        username: "max.mustermann",
+                        email: "max.mustermann@pfaffenhofen.de",
+                    },
+                    {
+                        id: "u2",
+                        firstname: "Max",
+                        surname: "Mustermann",
+                        username: "max.mustermann",
+                        email: "max.mustermann@pfaffenhofen.de",
+                    },
+                ]),
+            500
+        )
+    );
+
+    let clubId = "testclub";
+    let rowsLoaded = false;
+    let rows: DataTableRow[] = [];
+    rowsPromise.then((r) => {
+        rowsLoaded = true;
+        rows = r;
+    });
+    let headers: DataTableHeader[] = [
+        { key: "firstname", value: "Vorname" },
+        { key: "surname", value: "Nachname" },
+        { key: "username", value: "Vereins-ID" },
+        { key: "email", value: "E-Mail" },
+    ];
+    let active = false;
+    let selectedRowIds: string[] = [];
+
+    let showCreateClubAdmin = false;
+    let createData = {
+        saving: false,
+        firstName: "",
+        lastName: "",
+        password: "",
+        passwordInvalid: false,
+        passwordInvalidText: "",
+        passwordVisible: false,
+        error: "",
+    };
+    function initCreate() {
+        createData.saving = false;
+        createData.firstName = "";
+        createData.lastName = "";
+        createData.password = "";
+        createData.passwordInvalid = false;
+        createData.passwordInvalidText = "";
+        createData.passwordVisible = false;
+        createData.error = "";
+    }
+
+    async function submitCreate() {
+        createData.saving = true;
+        try {
+            let res = await createClubAdmin(
+                createData.firstName,
+                createData.lastName,
+                createData.password,
+                clubId
+            );
+            if (!res.success) throw new Error(res.error || "");
+
+            rows.push({
+                id: res.username,
+                firstname: res.username,
+                surname: createData.firstName,
+                username: createData.lastName,
+                email: "",
+            });
+
+            showCreateClubAdmin = false;
+        } catch (e) {
+            createData.error = e + "";
         } finally {
-            form.disabled = false;
+            createData.saving = false;
         }
     }
 </script>
 
 <div id="page">
-    <h2>Admin</h2>
+    <Tile>
+        <h2>Verein-Admins</h2>
 
-    <div class="clubadmins">
-        Coming soon: List of all known clubadmins
-        <form method="POST" on:submit|preventDefault={handleCreateClubAdmin}>
-            <h3>Add a new club admin</h3>
-            <label>
-                <span>Vorname</span>
-                <input name="firstname" type="text" />
-            </label>
-            <label>
-                <span>Nachname</span>
-                <input name="surname" type="text" />
-            </label>
-            <label>
-                <span>Vereins-ID</span>
-                <input name="club_id" type="text" />
-            </label>
-            <br/>
-            <label>
-                <span>Passwort</span>
-                <input name="password" type="text" />
-                <input on:click={handleGeneratePasswordButton} name="generate" type="button" value="Generieren" />
-            </label>
-            <br/>
-            <input type="submit" value="Anlegen" />
-        </form>
-    </div>
+        {#if rowsLoaded}
+            <DataTable bind:selectedRowIds batchSelection {headers} {rows}>
+                <Toolbar>
+                    <ToolbarBatchActions
+                        bind:active
+                        on:cancel={(e) => {
+                            e.preventDefault();
+                            active = false;
+                        }}
+                    >
+                        <Button
+                            icon={TrashCan}
+                            disabled={selectedRowIds.length === 0}
+                            on:click={() => {
+                                rows = rows.filter(
+                                    (row) => !selectedRowIds.includes(row.id)
+                                );
+                                selectedRowIds = [];
+                            }}
+                        >
+                            Delete
+                        </Button>
+                    </ToolbarBatchActions>
+                    <ToolbarContent>
+                        <ToolbarSearch />
+                        <Button on:click={() => (showCreateClubAdmin = true)}>
+                            Verein-Admin Hinzufügen
+                        </Button>
+                    </ToolbarContent>
+                </Toolbar>
+            </DataTable>
+        {:else}
+            <DataTableSkeleton {headers} showHeader={false} />
+        {/if}
+    </Tile>
 </div>
 
+<Modal
+    open={showCreateClubAdmin}
+    modalHeading="Verein-Admin Hinzufügen"
+    primaryButtonText="Erstellen"
+    secondaryButtonText="Abbrechen"
+    selectorPrimaryFocus="#db-name"
+    on:click:button--secondary={() =>
+        createData.saving ? null : (showCreateClubAdmin = false)}
+    on:open={initCreate}
+    on:close={() => (showCreateClubAdmin = false)}
+    on:submit={submitCreate}
+    disabled={createData.saving}
+    primaryButtonDisabled={createData.saving}
+    preventCloseOnClickOutside
+>
+    <form>
+        <TextInput
+            light
+            labelText="Vorname"
+            bind:value={createData.firstName}
+            disabled={createData.saving}
+            required
+            invalid={createData.error.length > 0}
+            invalidText={createData.error}
+        />
+        <TextInput
+            light
+            labelText="Nachname"
+            bind:value={createData.lastName}
+            disabled={createData.saving}
+            required
+        />
+
+        <div class="gen-password">
+            <PasswordInput
+                light
+                labelText="Passwort"
+                required
+                bind:value={createData.password}
+                disabled={createData.saving}
+                tooltipAlignment="end"
+                tooltipPosition="left"
+                invalid={validatePasswordImpl(createData.password).length > 0}
+                invalidText={validatePasswordImpl(createData.password).join(
+                    ".\n"
+                )}
+            />
+            <!-- TODO: show PasswordInput text with createData.passwordVisible (no API for that yet) -->
+            <Button
+                icon={Renew}
+                on:click={handleGeneratePasswordButton}
+                disabled={createData.saving}
+                kind="danger-ghost"
+                tooltipAlignment="end"
+                tooltipPosition="top"
+                iconDescription="Zufällig Generieren"
+            />
+        </div>
+    </form>
+
+    {#if createData.saving}
+        <ProgressBar helperText="Saving..." />
+    {/if}
+</Modal>
+
 <style>
-    /* Temporary */
-    .clubadmins {
-        border: 1px solid black;
+    #page {
+        max-width: 1200px;
+        margin: 1em auto;
     }
 
-    /* Temporary */
-    .clubadmins form {
-        border: 1px solid grey;
+    .gen-password {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .gen-password > :global(:nth-child(2)) {
+        margin-top: 16px;
+    }
+
+    .gen-password :global(.bx--form-requirement) {
+        white-space: pre-wrap;
     }
 </style>
