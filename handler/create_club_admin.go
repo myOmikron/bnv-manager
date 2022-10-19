@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/labstack/echo/v4"
 	"github.com/myOmikron/echotools/utility"
 
@@ -48,8 +46,12 @@ func (w *Wrapper) CreateClubAdmin(c echo.Context) error {
 		return c.String(500, "LDAP Error")
 	}
 
-	fmt.Println(*groupDN)
 	if err := ldap_impl.AddDNToGroup(*dn, *groupDN, w.Config); err != nil {
+		c.Logger().Error(err)
+		return c.String(500, "LDAP Error")
+	}
+
+	if err := ldap_impl.AddDNToGroup(*dn, w.Config.LDAP.ClubAdminGroupDN, w.Config); err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}
