@@ -292,6 +292,7 @@ func CreateClub(id string, name string, config *config.Config) error {
 	defer conn.Unbind()
 
 	addRequest := l.NewAddRequest(fmt.Sprintf("cn=%s,%s", l.EscapeFilter(id), config.LDAP.ClubSearchBase), nil)
+	addRequest.Attribute("objectClass", []string{"top", "groupOfNames"})
 	addRequest.Attribute("description", []string{name})
 
 	if err := conn.Add(addRequest); err != nil {
