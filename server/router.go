@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/myOmikron/bnv-manager/handler"
 	"github.com/myOmikron/bnv-manager/models/config"
