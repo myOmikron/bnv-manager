@@ -18,7 +18,7 @@ func HashPassword(password string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := string(hashed)
+	s := fmt.Sprintf("{CRYPT}%s", string(hashed))
 	return &s, nil
 }
 
