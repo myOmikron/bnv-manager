@@ -1,7 +1,6 @@
 package server
 
 import (
-	"github.com/myOmikron/bnv-manager/models/dbmodels"
 	"net/url"
 
 	"github.com/labstack/echo/v4"
@@ -10,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/myOmikron/bnv-manager/models/config"
+	"github.com/myOmikron/bnv-manager/models/dbmodels"
 )
 
 func initializeMiddleware(e *echo.Echo, db *gorm.DB, conf *config.Config) {
@@ -39,6 +39,8 @@ func initializeMiddleware(e *echo.Echo, db *gorm.DB, conf *config.Config) {
 		})
 	}
 	e.Use(mw.Security(allowedHosts))
+
+	e.Use(emw.BodyLimit("5MB"))
 
 	e.Use(mw.Session(db, &mw.SessionConfig{
 		CookieName: "sessionid",
