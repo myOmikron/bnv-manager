@@ -57,6 +57,7 @@ type LDAP struct {
 	ClubSearchFilter  string
 	ClubAdminGroupDN  string
 	AdminGroupDN      string
+	DummyUserDN       string
 }
 
 type Config struct {
