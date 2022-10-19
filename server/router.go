@@ -2,12 +2,13 @@ package server
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/myOmikron/bnv-manager/handler"
-	"github.com/myOmikron/bnv-manager/models/config"
-	"github.com/myOmikron/bnv-manager/models/dbmodels"
 	mw "github.com/myOmikron/echotools/middleware"
 	"github.com/myOmikron/echotools/worker"
 	"gorm.io/gorm"
+
+	"github.com/myOmikron/bnv-manager/handler"
+	"github.com/myOmikron/bnv-manager/models/config"
+	"github.com/myOmikron/bnv-manager/models/dbmodels"
 )
 
 func loginRequired(f echo.HandlerFunc) echo.HandlerFunc {
@@ -50,10 +51,12 @@ func adminRequired(f echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config) {
+func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config, readOnlyWP worker.Pool, adminWP worker.Pool) {
 	api := handler.Wrapper{
-		DB:     db,
-		Config: conf,
+		DB:         db,
+		Config:     conf,
+		ReadOnlyWP: readOnlyWP,
+		AdminWP:    adminWP,
 	}
 
 	e.POST("/api/login", api.Login)

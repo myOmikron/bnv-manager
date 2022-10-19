@@ -3,12 +3,14 @@ package server
 import (
 	"errors"
 	"fmt"
+	"github.com/myOmikron/bnv-manager/modules/wp"
 	"io/fs"
 	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/myOmikron/echotools/color"
 	"github.com/myOmikron/echotools/execution"
+	"github.com/myOmikron/echotools/worker"
 	"github.com/pelletier/go-toml"
 
 	"github.com/myOmikron/bnv-manager/models/config"
@@ -36,24 +38,50 @@ func StartServer(configPath string) {
 
 	db := initializeDB(conf)
 
+	readOnlyWP := worker.NewPool(&worker.PoolConfig{
+		NumWorker: 20,
+		QueueSize: 20,
+	})
+
+	adminWP := worker.NewPool(&worker.PoolConfig{
+		NumWorker: 20,
+		QueueSize: 20,
+	})
+
+	color.Print(color.PURPLE, "Starting read only ldap worker ... ")
+	if err := readOnlyWP.StartWithWorkerCreator(wp.StartROWorker(conf)); err != nil {
+		panic(err)
+	}
+	color.Println(color.GREEN, "Done")
+
+	color.Print(color.PURPLE, "Starting admin ldap worker ... ")
+	if err := adminWP.StartWithWorkerCreator(wp.StartAdminWorker(conf)); err != nil {
+		panic(err)
+	}
+	color.Println(color.GREEN, "Done")
+
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
 
 	initializeMiddleware(e, db, conf)
 
-	defineRoutes(e, db, conf)
+	defineRoutes(e, db, conf, readOnlyWP, adminWP)
 
-	color.Print(color.PURPLE, "Starting listening on "+fmt.Sprintf("http://%s\n", conf.GetListenString()))
+	color.Print(color.PURPLE, fmt.Sprintf("Starting listening on http://%s\n", conf.GetListenString()))
 	execution.SignalStart(e, conf.GetListenString(), &execution.Config{
 		ReloadFunc: func() {
+			readOnlyWP.Stop()
+			adminWP.Stop()
 			StartServer(configPath)
 		},
 		StopFunc: func() {
-
+			readOnlyWP.Stop()
+			adminWP.Stop()
 		},
 		TerminateFunc: func() {
-
+			readOnlyWP.Stop()
+			adminWP.Stop()
 		},
 	})
 }
