@@ -8,10 +8,10 @@ import (
 )
 
 type createClubAdminRequest struct {
-	Firstname *string `json:"firstname" echotools:"required;not null"`
-	Surname   *string `json:"surname" echotools:"required;not null"`
-	Password  *string `json:"password" echotools:"required;not null"`
-	ClubID    *string `json:"club_id" echotools:"required;not null"`
+	Firstname *string `json:"firstname" echotools:"required;not empty"`
+	Surname   *string `json:"surname" echotools:"required;not empty"`
+	Password  *string `json:"password" echotools:"required;not empty"`
+	ClubID    *string `json:"club_id" echotools:"required;not empty"`
 }
 
 type createClubAdminResponse struct {

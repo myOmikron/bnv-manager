@@ -7,8 +7,8 @@ import (
 )
 
 type createClubRequest struct {
-	ClubID   *string `json:"club_id" echotools:"required;not null"`
-	ClubName *string `json:"club_name" echotools:"required;not null"`
+	ClubID   *string `json:"club_id" echotools:"required;not empty"`
+	ClubName *string `json:"club_name" echotools:"required;not empty"`
 }
 
 func (w *Wrapper) CreateClub(c echo.Context) error {

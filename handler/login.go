@@ -8,8 +8,8 @@ import (
 )
 
 type loginRequest struct {
-	Username *string `json:"username" echotools:"required;not null"`
-	Password *string `json:"password" echotools:"required;not null"`
+	Username *string `json:"username" echotools:"required;not empty"`
+	Password *string `json:"password" echotools:"required;not empty"`
 }
 
 type loginResponse struct {
