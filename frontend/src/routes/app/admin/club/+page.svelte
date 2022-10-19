@@ -1,9 +1,8 @@
 <script lang="ts">
     import { createClubAdmin, deleteClub, getClubAdmins } from "$lib/admin";
-    import type { ClubAdminResponse } from "$lib/admin";
-	import type { PageData } from "./$types";
+    import type { PageData } from "./$types";
 
-	export let data: PageData;
+    export let data: PageData;
 
     import {
         Button,
@@ -11,7 +10,6 @@
         DataTableSkeleton,
         Modal,
         PasswordInput,
-        ProgressBar,
         InlineLoading,
         TextInput,
         Tile,
@@ -27,6 +25,7 @@
         DataTableRow,
         DataTableValue,
     } from "carbon-components-svelte/types/DataTable/DataTable.svelte";
+    import FormDialog from "$lib/components/FormDialog.svelte";
 
     let clubId = data.clubId;
 
@@ -52,14 +51,6 @@
         createData.passwordVisible = true;
     }
 
-    function validatePassword(event: InputEvent): void {
-        let errors = validatePasswordImpl(
-            (<HTMLInputElement>event.target).value
-        );
-        createData.passwordInvalid = errors.length > 0;
-        createData.passwordInvalidText = errors.join("\n");
-    }
-
     function validatePasswordImpl(password: string): string[] {
         if (!password.length) return [];
         let ret: string[] = [];
@@ -79,12 +70,14 @@
         return ret;
     }
 
-    let rowsPromise: Promise<DataTableRow[]> = getClubAdmins(clubId)
-        .then(rows => rows.map(r => {
-            let row = <DataTableRow><any>r;
-            row.id = r.username;
-            return row;
-        }));
+    let rowsPromise: Promise<DataTableRow[]> = getClubAdmins(clubId).then(
+        (rows) =>
+            rows.map((r) => {
+                let row = <DataTableRow>(<any>r);
+                row.id = r.username;
+                return row;
+            })
+    );
 
     let rowsLoaded = false;
     let rows: DataTableRow[] = [];
@@ -92,7 +85,8 @@
         rowsLoaded = true;
         rows = r;
     });
-    let naProcess = (v: DataTableValue) => typeof(v) == "undefined" ? "n/a" : v;
+    let naProcess = (v: DataTableValue) =>
+        typeof v == "undefined" ? "n/a" : v;
     let headers: DataTableHeader[] = [
         { key: "firstname", value: "Vorname", display: naProcess },
         { key: "surname", value: "Nachname", display: naProcess },
@@ -103,36 +97,16 @@
     let selectedRowIds: string[] = [];
 
     let showDeleteDialog = false;
-    let deletingClub = false;
-    let deleteError = "";
     let deleteDialogUnlockTime = 5;
 
     function deleteDialog() {
         showDeleteDialog = true;
-        deleteError = "";
         deleteDialogUnlockTime = 5;
-        let timer: NodeJS.Timer = setInterval(function() {
+        let timer: NodeJS.Timer = setInterval(function () {
             if (deleteDialogUnlockTime == 0 || !showDeleteDialog)
                 return clearInterval(timer);
             deleteDialogUnlockTime--;
         }, 1000);
-    }
-
-    async function deleteClubConfirmed() {
-        deletingClub = true;
-        try
-        {
-            await deleteClub(clubId);
-            showDeleteDialog = false;
-        }
-        catch (e)
-        {
-            deleteError = e + "";
-        }
-        finally
-        {
-            deletingClub = false;
-        }
     }
 
     let showCreateClubAdmin = false;
@@ -144,46 +118,7 @@
         passwordInvalid: false,
         passwordInvalidText: "",
         passwordVisible: false,
-        error: "",
     };
-    function initCreate() {
-        createData.saving = false;
-        createData.firstName = "";
-        createData.lastName = "";
-        createData.password = "";
-        createData.passwordInvalid = false;
-        createData.passwordInvalidText = "";
-        createData.passwordVisible = false;
-        createData.error = "";
-    }
-
-    async function submitCreate() {
-        createData.saving = true;
-        try {
-            let res = await createClubAdmin(
-                createData.firstName,
-                createData.lastName,
-                createData.password,
-                clubId
-            );
-            if (!res.success) throw new Error(res.error || "");
-
-            rows.push({
-                id: res.username,
-                firstname: createData.firstName,
-                surname: createData.lastName,
-                username: res.username,
-                email: "",
-            });
-            rows = rows;
-
-            showCreateClubAdmin = false;
-        } catch (e) {
-            createData.error = e + "";
-        } finally {
-            createData.saving = false;
-        }
-    }
 </script>
 
 <div id="page">
@@ -227,116 +162,113 @@
     </Tile>
 
     <Tile>
-        <Button
-            kind="danger-tertiary"
-            on:click={() => deleteDialog()}
-        >
+        <Button kind="danger-tertiary" on:click={() => deleteDialog()}>
             Verein Löschen
         </Button>
     </Tile>
 </div>
 
-<Modal
-    open={showCreateClubAdmin}
-    modalHeading="Vereins-Admin Hinzufügen"
-    primaryButtonText="Erstellen"
-    secondaryButtonText="Abbrechen"
+<FormDialog
+    bind:open={showCreateClubAdmin}
+    name="Vereins-Admin Hinzufügen"
+    submitText="Erstellen"
     selectorPrimaryFocus="#db-name"
-    on:click:button--secondary={() =>
-        createData.saving ? null : (showCreateClubAdmin = false)}
-    on:open={initCreate}
-    on:close={() => (showCreateClubAdmin = false)}
-    on:submit={submitCreate}
-    disabled={createData.saving}
-    primaryButtonDisabled={createData.saving}
+    work={async () => {
+        let res = await createClubAdmin(
+            createData.firstName,
+            createData.lastName,
+            createData.password,
+            clubId
+        );
+        if (!res.success) throw new Error(res.error || "");
+
+        rows.push({
+            id: res.username,
+            firstname: createData.firstName,
+            surname: createData.lastName,
+            username: res.username,
+            email: undefined,
+        });
+        rows = rows;
+    }}
+    bind:state={createData}
+    bind:working={createData.saving}
     preventCloseOnClickOutside
 >
-    {#if createData.saving}
-        <InlineLoading status="active" description="Saving..." />
-    {:else if createData.error.length > 0}
-        <InlineLoading status="error" description={createData.error} />
-    {/if}
+    <TextInput
+        light
+        labelText="Vorname"
+        bind:value={createData.firstName}
+        disabled={createData.saving}
+        required
+    />
+    <TextInput
+        light
+        labelText="Nachname"
+        bind:value={createData.lastName}
+        disabled={createData.saving}
+        required
+    />
 
-    <form>
-        <TextInput
+    <div class="gen-password">
+        <PasswordInput
             light
-            labelText="Vorname"
-            bind:value={createData.firstName}
-            disabled={createData.saving}
+            labelText="Passwort"
             required
-        />
-        <TextInput
-            light
-            labelText="Nachname"
-            bind:value={createData.lastName}
+            bind:value={createData.password}
             disabled={createData.saving}
-            required
+            tooltipAlignment="end"
+            tooltipPosition="left"
+            invalid={validatePasswordImpl(createData.password).length > 0}
+            invalidText={validatePasswordImpl(createData.password).join(".\n")}
         />
+        <!-- TODO: show PasswordInput text with createData.passwordVisible (no API for that yet) -->
+        <Button
+            icon={Renew}
+            on:click={handleGeneratePasswordButton}
+            disabled={createData.saving}
+            size="field"
+            kind="danger-ghost"
+            tooltipAlignment="end"
+            tooltipPosition="top"
+            iconDescription="Zufällig Generieren"
+        />
+    </div>
+</FormDialog>
 
-        <div class="gen-password">
-            <PasswordInput
-                light
-                labelText="Passwort"
-                required
-                bind:value={createData.password}
-                disabled={createData.saving}
-                tooltipAlignment="end"
-                tooltipPosition="left"
-                invalid={validatePasswordImpl(createData.password).length > 0}
-                invalidText={validatePasswordImpl(createData.password).join(
-                    ".\n"
-                )}
-            />
-            <!-- TODO: show PasswordInput text with createData.passwordVisible (no API for that yet) -->
-            <Button
-                icon={Renew}
-                on:click={handleGeneratePasswordButton}
-                disabled={createData.saving}
-                size="field"
-                kind="danger-ghost"
-                tooltipAlignment="end"
-                tooltipPosition="top"
-                iconDescription="Zufällig Generieren"
-            />
-        </div>
-    </form>
-</Modal>
-
-<Modal
-    open={showDeleteDialog}
-    modalHeading="Verein Löschen"
-    primaryButtonDisabled={deleteDialogUnlockTime > 0 || deletingClub}
-    preventCloseOnClickOutside={deletingClub}
-    primaryButtonText={
-        deleteDialogUnlockTime > 0
-            ? "Verein Löschen (" + deleteDialogUnlockTime + ")"
-            : "Verein Löschen"}
+<FormDialog
+    bind:open={showDeleteDialog}
+    name="Verein Löschen"
+    primaryButtonDisabled={deleteDialogUnlockTime > 0}
+    submitText={deleteDialogUnlockTime > 0
+        ? "Verein Löschen (" + deleteDialogUnlockTime + ")"
+        : "Verein Löschen"}
     primaryButtonIcon={TrashCan}
-    secondaryButtonText="Abbrechen"
-    on:click:button--secondary={() =>
-        deletingClub ? null : (showDeleteDialog = false)}
-    on:close={() => (showDeleteDialog = false)}
-    on:submit={deleteClubConfirmed}
+    work={async () => {
+        await deleteClub(clubId);
+        history.back();
+    }}
+    workingText="Verein wird gelöscht"
     danger
 >
     <div class="wide-p">
-        {#if deletingClub}
-            <InlineLoading status="active" description="Verein wird gelöscht..." />
-        {:else if deleteError.length > 0}
-            <InlineLoading status="error" description={deleteError} />
-        {/if}
         <p>
-            <b>Achtung:</b> ein Verein ist nach dem Löschen <b>nicht Wiederherstellbar</b>!
+            <b>Achtung:</b> ein Verein ist nach dem Löschen
+            <b>nicht Wiederherstellbar</b>!
         </p>
         <ul>
             <li>der Web-Space des Vereins wird gelöscht</li>
-            <li>alle dem Verein zugeordneten Benutzer werden gelöscht, inkl. E-Mails und Postfächer</li>
+            <li>
+                alle dem Verein zugeordneten Benutzer werden gelöscht, inkl.
+                E-Mails und Postfächer
+            </li>
         </ul>
         <p>
-            Diese Aktion kann nicht abgebrochen werden, sobald sie angefangen wurde.
+            Diese Aktion kann nicht abgebrochen werden, sobald sie angefangen
+            wurde.
         </p>
     </div>
-</Modal>
+</FormDialog>
 
 <style>
     #page {
@@ -361,7 +293,9 @@
         white-space: pre-wrap;
     }
 
-    .wide-p p, .wide-p ul, .wide-p li {
+    .wide-p p,
+    .wide-p ul,
+    .wide-p li {
         margin: 1em 0;
         list-style: disc;
     }

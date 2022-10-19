@@ -1,73 +1,37 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { getClubs, type Club, createClub } from "$lib/admin";
+    import FormDialog from "$lib/components/FormDialog.svelte";
+    import PageError from "$lib/components/PageError.svelte";
 	import {
-		Button,
-		ButtonSet,
 		ClickableTile,
-		InlineLoading,
-		Modal,
-		SkeletonPlaceholder,
 		SkeletonText,
 		TextInput,
 	} from "carbon-components-svelte";
 	import Add from "carbon-icons-svelte/lib/Add.svelte";
 
-	let clubs: Club[];
-	let clubsLoaded = false;
-
-	getClubs().then((c) => {
-		clubs = c;
-		clubsLoaded = true;
-	});
+	let clubsPromise: Promise<Club[]> = getClubs();
+	let localClubs: Club[] = [];
 
 	let showCreateDialog = false;
 	let createData = {
 		saving: false,
 		name: "",
 		id: "",
-		error: "",
 	};
-
-	function initCreateDialog() {
-		createData.saving = false;
-		createData.name = "";
-		createData.id = "";
-		createData.error = "";
-	}
-
-	async function createClubImpl() {
-		createData.saving = true;
-		try
-		{
-			let form = <HTMLFormElement>document.getElementById("createForm");
-			if (!form.reportValidity())
-				return;
-
-			let club = await createClub(createData.id, createData.name);
-			clubs.push(club);
-			clubs = clubs;
-
-			showCreateDialog = false;
-		}
-		catch (e)
-		{
-			createData.error = e + "";
-		}
-		finally
-		{
-			createData.saving = false;
-		}
-	}
 </script>
 
 <div id="page">
-	{#if clubsLoaded}
+	{#await clubsPromise}
+		<div class="clubs">
+			<SkeletonText />
+		</div>
+	{:then clubs}
 		{#if clubs.length == 0}
-			<p class="empty">Noch keine Clubs angelegt.</p>
+			<p class="empty">Noch kein Verein angelegt.</p>
 		{/if}
 		<div class="clubs">
-			{#each clubs as club}
+			{#each clubs.concat(localClubs).sort((a, b) => a.name.localeCompare(b.name)) as club}
 				<ClickableTile
 					on:click={(e) => {
 						e.preventDefault();
@@ -90,49 +54,42 @@
 				<Add size="32" />
 			</ClickableTile>
 		</div>
-	{:else}
-		<div class="clubs">
-			<SkeletonText />
-		</div>
-	{/if}
+	{:catch error}
+		<PageError
+			message="Fehler bei Vereinsauflistung"
+			error={error}
+		/>
+	{/await}
 </div>
 
-<Modal
-	open={showCreateDialog}
-	modalHeading="Verein Erstellen"
+<FormDialog
+	name="Verein Erstellen"
+	bind:open={showCreateDialog}
+	bind:state={createData}
+	bind:working={createData.saving}
 	preventCloseOnClickOutside
-	primaryButtonText="Verein Erstellen"
-	secondaryButtonText="Abbrechen"
-	on:click:button--secondary={() =>
-		createData.saving ? null : (showCreateDialog = false)}
-	on:open={initCreateDialog}
-	on:close={() => (showCreateDialog = false)}
-	on:submit={createClubImpl}
+	work={async () => {
+		let club = await createClub(createData.id, createData.name);
+		localClubs.push(club);
+		localClubs = localClubs;
+	}}
 >
-	{#if createData.saving}
-		<InlineLoading status="active" description="Saving..." />
-	{:else if createData.error.length > 0}
-		<InlineLoading status="error" description={createData.error} />
-	{/if}
-
-	<form id="createForm">
-		<TextInput
-			light
-			labelText="LDAP ID"
-			pattern="^[a-zA-Z]+$"
-			bind:value={createData.id}
-			disabled={createData.saving}
-			required
-		/>
-		<TextInput
-			light
-			labelText="Vereins-Name"
-			bind:value={createData.name}
-			disabled={createData.saving}
-			required
-		/>
-	</form>
-</Modal>
+	<TextInput
+		light
+		labelText="LDAP ID"
+		pattern="^[a-zA-Z]+$"
+		bind:value={createData.id}
+		disabled={createData.saving}
+		required
+	/>
+	<TextInput
+		light
+		labelText="Vereins-Name"
+		bind:value={createData.name}
+		disabled={createData.saving}
+		required
+	/>
+</FormDialog>
 
 <style>
 	.clubs {
