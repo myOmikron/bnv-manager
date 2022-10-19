@@ -62,6 +62,7 @@ func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config) {
 	e.GET("/api/me", loginRequired(api.Me))
 
 	e.POST("/api/clubadmins", adminRequired(api.CreateClubAdmin))
+	e.GET("/api/clubadmins", adminRequired(api.GetClubAdmins))
 
 	e.GET("/api/clubs", adminRequired(api.GetClubs))
 

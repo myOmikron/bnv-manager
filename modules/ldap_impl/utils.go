@@ -225,3 +225,54 @@ func CheckIfClubExists(name string, config *config.Config) (*string, error) {
 	}
 	return nil, nil
 }
+
+type User struct {
+	DN        string
+	CN        string
+	Firstname string
+	Surname   string
+	Mail      *string
+}
+
+func GetClubadmins(club string, config *config.Config) ([]User, error) {
+	conn, err := l.DialURL(config.LDAP.ServerURI)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	if err := conn.Bind(config.LDAP.ROBindUser, config.LDAP.ROBindPassword); err != nil {
+		return nil, err
+	}
+	defer conn.Unbind()
+
+	sr, err := conn.Search(l.NewSearchRequest(
+		config.LDAP.UserSearchBase,
+		l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+		fmt.Sprintf(
+			"(&(objectClass=inetOrgPerson)(memberOf=cn=%s,%s)(memberOf=%s))",
+			l.EscapeFilter(club),
+			config.LDAP.ClubSearchBase,
+			config.LDAP.ClubAdminGroupDN,
+		),
+		[]string{"dn", "cn", "sn", "givenName"},
+		nil,
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]User, 0)
+
+	for _, entry := range sr.Entries {
+		results = append(results, User{
+			DN:        entry.DN,
+			CN:        entry.GetAttributeValue("cn"),
+			Firstname: entry.GetAttributeValue("givenName"),
+			Surname:   entry.GetAttributeValue("sn"),
+			Mail:      nil,
+		})
+	}
+
+	return results, nil
+}
