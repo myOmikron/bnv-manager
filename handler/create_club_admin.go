@@ -25,7 +25,7 @@ func (w *Wrapper) CreateClubAdmin(c echo.Context) error {
 		return c.String(400, err.Error())
 	}
 
-	groupDN, err := ldap_impl.CheckIfClubExists(*form.ClubID, w.Config)
+	groupDN, err := ldap_impl.CheckIfClubExists(*form.ClubID, w.Config, w.ReadOnlyWP)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
@@ -35,23 +35,31 @@ func (w *Wrapper) CreateClubAdmin(c echo.Context) error {
 		return c.String(400, "Club does not exist")
 	}
 
-	username, err := ldap_impl.GenerateUsername(*form.Firstname, *form.Surname, w.Config)
+	username, err := ldap_impl.GenerateUsername(*form.Firstname, *form.Surname, w.Config, w.ReadOnlyWP)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}
-	dn, err := ldap_impl.CreateUser(*username, *form.Firstname, *form.Surname, *form.Password, nil, w.Config)
+	dn, err := ldap_impl.CreateUser(
+		*username,
+		*form.Firstname,
+		*form.Surname,
+		*form.Password,
+		nil,
+		w.Config,
+		w.AdminWP,
+	)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}
 
-	if err := ldap_impl.AddDNToGroup(*dn, *groupDN, w.Config); err != nil {
+	if err := ldap_impl.AddDNToGroup(*dn, *groupDN, w.AdminWP); err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}
 
-	if err := ldap_impl.AddDNToGroup(*dn, w.Config.LDAP.ClubAdminGroupDN, w.Config); err != nil {
+	if err := ldap_impl.AddDNToGroup(*dn, w.Config.LDAP.ClubAdminGroupDN, w.AdminWP); err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}

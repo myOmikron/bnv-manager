@@ -31,7 +31,7 @@ func (w *Wrapper) GetClubAdmins(c echo.Context) error {
 		return c.String(400, "Parameter club_id must not be empty")
 	}
 
-	clubadmins, err := ldap_impl.GetClubadmins(form.ClubID, w.Config)
+	clubadmins, err := ldap_impl.GetClubadmins(form.ClubID, w.Config, w.ReadOnlyWP)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP error")

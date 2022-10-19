@@ -19,7 +19,7 @@ func (w *Wrapper) CreateClub(c echo.Context) error {
 		return c.String(400, err.Error())
 	}
 
-	if err := ldap_impl.CreateClub(*form.ClubID, *form.ClubName, w.Config); err != nil {
+	if err := ldap_impl.CreateClub(*form.ClubID, *form.ClubName, w.Config, w.AdminWP); err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}

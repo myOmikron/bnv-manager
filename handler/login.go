@@ -25,7 +25,7 @@ func (w *Wrapper) Login(c echo.Context) error {
 		return c.String(400, err.Error())
 	}
 
-	if user, err := ldap_impl.Authenticate(*form.Username, *form.Password, w.DB, w.Config); err != nil {
+	if user, err := ldap_impl.Authenticate(*form.Username, *form.Password, w.DB, w.Config, w.ReadOnlyWP); err != nil {
 		c.Logger().Info(err)
 		return c.String(401, "Authentication failed")
 	} else {

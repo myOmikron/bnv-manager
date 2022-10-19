@@ -1,8 +1,10 @@
 package ldap_impl
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/myOmikron/echotools/worker"
 	"regexp"
 	"strings"
 
@@ -24,7 +26,7 @@ func HashPassword(password string) (*string, error) {
 
 var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-Z0-9]+`)
 
-func GenerateUsername(firstname string, surname string, config *config.Config) (username *string, err error) {
+func GenerateUsername(firstname string, surname string, config *config.Config, roWP worker.Pool) (username *string, err error) {
 	if len(firstname) == 0 && len(surname) == 0 {
 		return nil, errors.New("firstname and surname must not be both empty")
 	}
@@ -49,30 +51,33 @@ func GenerateUsername(firstname string, surname string, config *config.Config) (
 		username = &u
 	}
 
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-	if err := conn.Bind(config.LDAP.ROBindUser, config.LDAP.ROBindPassword); err != nil {
-		return nil, err
-	}
-	defer conn.Unbind()
-
-	sr, err := conn.Search(l.NewSearchRequest(
-		config.LDAP.UserSearchBase,
-		l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(cn=%s*)", l.EscapeFilter(*username)),
-		[]string{"cn"},
-		nil,
-	))
-	if err != nil {
-		return nil, err
-	}
-
 	cns := make([]string, 0)
-	for _, entry := range sr.Entries {
-		cns = append(cns, entry.GetAttributeValue("cn"))
+
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
+
+		sr, err := conn.Search(l.NewSearchRequest(
+			config.LDAP.UserSearchBase,
+			l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf("(cn=%s*)", l.EscapeFilter(*username)),
+			[]string{"cn"},
+			nil,
+		))
+		if err != nil {
+			return err
+		}
+
+		for _, entry := range sr.Entries {
+			cns = append(cns, entry.GetAttributeValue("cn"))
+		}
+
+		return nil
+	})
+
+	roWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
+		return nil, err
 	}
 
 	counter := 1
@@ -89,21 +94,22 @@ func GenerateUsername(firstname string, surname string, config *config.Config) (
 	return
 }
 
-func AddDNToGroup(dn string, groupDN string, config *config.Config) error {
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+func AddDNToGroup(dn string, groupDN string, adminPool worker.Pool) error {
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
 
-	if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
-		return err
-	}
-	defer conn.Unbind()
+		mod := l.NewModifyRequest(groupDN, []l.Control{})
+		mod.Add("member", []string{dn})
+		if err := conn.Modify(mod); err != nil {
+			return err
+		}
 
-	mod := l.NewModifyRequest(groupDN, []l.Control{})
-	mod.Add("member", []string{dn})
-	if err := conn.Modify(mod); err != nil {
+		return nil
+	})
+
+	adminPool.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
 		return err
 	}
 
@@ -117,6 +123,7 @@ func CreateUser(
 	password string,
 	mail *string,
 	config *config.Config,
+	adminWP worker.Pool,
 ) (*string, error) {
 	hashed, err := HashPassword(password)
 	if err != nil {
@@ -124,34 +131,31 @@ func CreateUser(
 	}
 	dn := fmt.Sprintf("cn=%s,%s", username, config.LDAP.UserSearchBase)
 
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
 
-	if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
-		return nil, err
-	}
-	defer conn.Unbind()
+		attrs := []l.Attribute{
+			{"objectClass", []string{"top", "inetOrgPerson"}},
+			{"cn", []string{username}},
+			{"givenName", []string{firstname}},
+			{"sn", []string{surname}},
+			{"userPassword", []string{*hashed}},
+		}
 
-	attrs := []l.Attribute{
-		{"objectClass", []string{"top", "inetOrgPerson"}},
-		{"cn", []string{username}},
-		{"givenName", []string{firstname}},
-		{"sn", []string{surname}},
-		{"userPassword", []string{*hashed}},
-	}
+		if mail != nil {
+			attrs = append(attrs, l.Attribute{Type: "mail", Vals: []string{*mail}})
+		}
 
-	if mail != nil {
-		attrs = append(attrs, l.Attribute{Type: "mail", Vals: []string{*mail}})
-	}
+		if err := conn.Add(&l.AddRequest{DN: dn, Attributes: attrs, Controls: nil}); err != nil {
+			return err
+		}
 
-	if err := conn.Add(&l.AddRequest{
-		DN:         dn,
-		Attributes: attrs,
-		Controls:   nil,
-	}); err != nil {
+		return nil
+	})
+
+	adminWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
 		return nil, err
 	}
 
@@ -164,68 +168,74 @@ type Club struct {
 	Description string
 }
 
-func GetAllClubs(config *config.Config) ([]Club, error) {
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
-	if err := conn.Bind(config.LDAP.ROBindUser, config.LDAP.ROBindPassword); err != nil {
-		return nil, err
-	}
-	defer conn.Unbind()
-
-	sr, err := conn.Search(l.NewSearchRequest(
-		config.LDAP.ClubSearchBase,
-		l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(config.LDAP.ClubSearchFilter, "*"),
-		[]string{"dn", "cn", "description"},
-		nil,
-	))
-	if err != nil {
-		return nil, err
-	}
-
+func GetAllClubs(config *config.Config, roWP worker.Pool) ([]Club, error) {
 	groupDNs := make([]Club, 0)
-	for _, entry := range sr.Entries {
-		groupDNs = append(groupDNs, Club{
-			DN:          entry.GetAttributeValue("dn"),
-			CN:          entry.GetAttributeValue("cn"),
-			Description: entry.GetAttributeValue("description"),
-		})
+
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
+
+		sr, err := conn.Search(l.NewSearchRequest(
+			config.LDAP.ClubSearchBase,
+			l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf(config.LDAP.ClubSearchFilter, "*"),
+			[]string{"dn", "cn", "description"},
+			nil,
+		))
+		if err != nil {
+			return err
+		}
+
+		for _, entry := range sr.Entries {
+			groupDNs = append(groupDNs, Club{
+				DN:          entry.GetAttributeValue("dn"),
+				CN:          entry.GetAttributeValue("cn"),
+				Description: entry.GetAttributeValue("description"),
+			})
+		}
+
+		return nil
+	})
+
+	roWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
+		return nil, err
 	}
 
 	return groupDNs, nil
 }
 
-func CheckIfClubExists(name string, config *config.Config) (*string, error) {
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
+func CheckIfClubExists(name string, config *config.Config, roWP worker.Pool) (*string, error) {
+	var ret *string
+
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
+
+		sr, err := conn.Search(l.NewSearchRequest(
+			config.LDAP.ClubSearchBase,
+			l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf(config.LDAP.ClubSearchFilter, l.EscapeFilter(name)),
+			nil,
+			nil,
+		))
+		if err != nil {
+			return err
+		}
+
+		if len(sr.Entries) == 1 {
+			ret = &sr.Entries[0].DN
+		}
+
+		return nil
+	})
+
+	roWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
 		return nil, err
 	}
-	defer conn.Close()
 
-	if err := conn.Bind(config.LDAP.ROBindUser, config.LDAP.ROBindPassword); err != nil {
-		return nil, err
-	}
-	defer conn.Unbind()
-
-	sr, err := conn.Search(l.NewSearchRequest(
-		config.LDAP.ClubSearchBase,
-		l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(config.LDAP.ClubSearchFilter, l.EscapeFilter(name)),
-		nil,
-		nil,
-	))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(sr.Entries) == 1 {
-		return &sr.Entries[0].DN, nil
-	}
-	return nil, nil
+	return ret, nil
 }
 
 type User struct {
@@ -236,50 +246,51 @@ type User struct {
 	Mail      *string
 }
 
-func GetClubadmins(club string, config *config.Config) ([]User, error) {
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
-	if err := conn.Bind(config.LDAP.ROBindUser, config.LDAP.ROBindPassword); err != nil {
-		return nil, err
-	}
-	defer conn.Unbind()
-
-	sr, err := conn.Search(l.NewSearchRequest(
-		config.LDAP.UserSearchBase,
-		l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(
-			"(&(objectClass=inetOrgPerson)(memberOf=cn=%s,%s)(memberOf=%s))",
-			l.EscapeFilter(club),
-			config.LDAP.ClubSearchBase,
-			config.LDAP.ClubAdminGroupDN,
-		),
-		[]string{"dn", "cn", "sn", "givenName"},
-		nil,
-	))
-	if err != nil {
-		return nil, err
-	}
-
+func GetClubadmins(club string, config *config.Config, roWP worker.Pool) ([]User, error) {
 	results := make([]User, 0)
 
-	for _, entry := range sr.Entries {
-		results = append(results, User{
-			DN:        entry.DN,
-			CN:        entry.GetAttributeValue("cn"),
-			Firstname: entry.GetAttributeValue("givenName"),
-			Surname:   entry.GetAttributeValue("sn"),
-			Mail:      nil,
-		})
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
+
+		sr, err := conn.Search(l.NewSearchRequest(
+			config.LDAP.UserSearchBase,
+			l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf(
+				"(&(objectClass=inetOrgPerson)(memberOf=cn=%s,%s)(memberOf=%s))",
+				l.EscapeFilter(club),
+				config.LDAP.ClubSearchBase,
+				config.LDAP.ClubAdminGroupDN,
+			),
+			[]string{"dn", "cn", "sn", "givenName"},
+			nil,
+		))
+		if err != nil {
+			return err
+		}
+
+		for _, entry := range sr.Entries {
+			results = append(results, User{
+				DN:        entry.DN,
+				CN:        entry.GetAttributeValue("cn"),
+				Firstname: entry.GetAttributeValue("givenName"),
+				Surname:   entry.GetAttributeValue("sn"),
+				Mail:      nil,
+			})
+		}
+
+		return nil
+	})
+
+	roWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
+		return nil, err
 	}
 
 	return results, nil
 }
 
-func CreateClub(id string, name string, config *config.Config) error {
+func CreateClub(id string, name string, config *config.Config, adminWP worker.Pool) error {
 	conn, err := l.DialURL(config.LDAP.ServerURI)
 	if err != nil {
 		return err
@@ -291,54 +302,67 @@ func CreateClub(id string, name string, config *config.Config) error {
 	}
 	defer conn.Unbind()
 
-	addRequest := l.NewAddRequest(fmt.Sprintf("cn=%s,%s", l.EscapeFilter(id), config.LDAP.ClubSearchBase), nil)
-	addRequest.Attribute("objectClass", []string{"top", "groupOfNames"})
-	addRequest.Attribute("description", []string{name})
-	addRequest.Attribute("member", []string{config.LDAP.DummyUserDN})
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
 
-	if err := conn.Add(addRequest); err != nil {
+		addRequest := l.NewAddRequest(fmt.Sprintf("cn=%s,%s", l.EscapeFilter(id), config.LDAP.ClubSearchBase), nil)
+		addRequest.Attribute("objectClass", []string{"top", "groupOfNames"})
+		addRequest.Attribute("description", []string{name})
+		addRequest.Attribute("member", []string{config.LDAP.DummyUserDN})
+
+		if err := conn.Add(addRequest); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	adminWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func DeleteClub(id string, config *config.Config) error {
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
-		return err
-	}
-	defer conn.Unbind()
-
+func DeleteClub(id string, config *config.Config, adminWP worker.Pool) error {
 	clubDN := fmt.Sprintf("cn=%s,%s", l.EscapeFilter(id), config.LDAP.ClubSearchBase)
 
-	sr, err := conn.Search(
-		l.NewSearchRequest(
-			config.LDAP.UserSearchBase,
-			l.ScopeSingleLevel,
-			l.NeverDerefAliases, 0, 0, false,
-			fmt.Sprintf("(&(objectClass=inetOrgPerson)(memberOf=%s))", clubDN),
-			[]string{"dn"},
-			nil,
-		),
-	)
-	if err != nil {
-		return err
-	}
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
 
-	if err := conn.Del(l.NewDelRequest(clubDN, nil)); err != nil {
-		return err
-	}
-
-	for _, entry := range sr.Entries {
-		if err := conn.Del(l.NewDelRequest(entry.DN, nil)); err != nil {
+		sr, err := conn.Search(
+			l.NewSearchRequest(
+				config.LDAP.UserSearchBase,
+				l.ScopeSingleLevel,
+				l.NeverDerefAliases, 0, 0, false,
+				fmt.Sprintf("(&(objectClass=inetOrgPerson)(memberOf=%s))", clubDN),
+				[]string{"dn"},
+				nil,
+			),
+		)
+		if err != nil {
 			return err
 		}
+
+		if err := conn.Del(l.NewDelRequest(clubDN, nil)); err != nil {
+			return err
+		}
+
+		for _, entry := range sr.Entries {
+			if err := conn.Del(l.NewDelRequest(entry.DN, nil)); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	adminWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
+		return err
 	}
 
 	return nil

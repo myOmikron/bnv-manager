@@ -16,7 +16,7 @@ type getClubsResponse struct {
 }
 
 func (w *Wrapper) GetClubs(c echo.Context) error {
-	clubs, err := ldap_impl.GetAllClubs(w.Config)
+	clubs, err := ldap_impl.GetAllClubs(w.Config, w.ReadOnlyWP)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
