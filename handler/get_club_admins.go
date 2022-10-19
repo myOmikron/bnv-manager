@@ -27,6 +27,10 @@ func (w *Wrapper) GetClubAdmins(c echo.Context) error {
 		return c.String(400, "Bad request")
 	}
 
+	if form.ClubID == "" {
+		return c.String(400, "Parameter club_id must not be empty")
+	}
+
 	clubadmins, err := ldap_impl.GetClubadmins(form.ClubID, w.Config)
 	if err != nil {
 		c.Logger().Error(err)
