@@ -10,13 +10,10 @@
 	} from "carbon-components-svelte";
 	import Login from "carbon-icons-svelte/lib/Login.svelte";
 
-	let invalidForm = false;
-
 	getAccount().then((acc) => (acc ? goto("/app") : null));
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		let form = <HTMLFormElement>event.target;
-		invalidForm = false;
 		form.disabled = true;
 		try {
 			let data = new FormData(form);
@@ -28,8 +25,6 @@
 			let res = await window.bnv.showLoading(login(username, password));
 			if (res) {
 				goto("/app");
-			} else {
-				invalidForm = true;
 			}
 		} finally {
 			form.disabled = false;
@@ -37,8 +32,8 @@
 	}
 </script>
 
-<Tile style="margin-top: 3em;">
-	<div class="login-page">
+<div class="login-page">
+	<Tile class="tile">
 		<h2>Bürgernetzverband &ndash; Verwaltung</h2>
 		<Form class="fluid-form" on:submit={handleSubmit}>
 			<TextInput
@@ -63,27 +58,41 @@
 				Login
 			</Button>
 		</Form>
-	</div>
-</Tile>
+	</Tile>
+</div>
 
 <style>
-	:global(body) {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		min-height: 256px;
+	.login-page {
+		display: block;
+		margin: 0 auto;
+		width: 100%;
+		max-width: 500px;
 	}
 
-	.login-page {
+	.login-page > :global(.tile) {
+		margin-top: 3em;
 		padding: 2em;
 	}
 
 	.login-page h2 {
 		padding-bottom: 1em;
+		text-align: center;
 	}
 
 	.login-page :global(.fluid-form) {
 		width: 75%;
 		margin: auto;
+	}
+
+	@media screen and (max-width: 500px) {
+		.login-page > :global(.tile) {
+			margin-top: 0;
+			padding: 1em 4pt;
+		}
+
+		.login-page :global(.fluid-form) {
+			width: 100%;
+			margin: auto;
+		}
 	}
 </style>

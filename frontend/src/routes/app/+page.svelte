@@ -11,7 +11,7 @@
 </script>
 
 <div class="overview">
-	<Tile>
+	<Tile class="tile">
 		<h2>Bürgernetz Verwaltung</h2>
 		<p class="username">
 			{data.account?.username || "(bitte neu anmelden)"}
@@ -36,7 +36,7 @@
 			{/if}
 			{#if data.account?.isAdmin}
 				<Button icon={GroupPresentation} kind="ghost" href="/app/admin">
-					Clubverwaltung
+					Vereinsverwaltung
 				</Button>
 			{/if}
 			<Button icon={UserAvatar} kind="ghost" href="/app/account">
@@ -50,8 +50,28 @@
 	.overview {
 		display: block;
 		margin: 1em auto;
+		width: 100%;
 		max-width: 500px;
 		text-align: center;
+	}
+
+	.overview > :global(.tile) {
+		padding: 3em;
+		min-width: 0;
+	}
+
+	@media screen and (max-width: 500px) {
+		.overview {
+			margin-top: 0;
+		}
+
+		.overview > :global(.tile) {
+			padding: 1em 4pt;
+		}
+
+		.overview h2 {
+			padding: 0 50px; /* for still showing UI buttons */
+		}
 	}
 
 	.overview h2 {
