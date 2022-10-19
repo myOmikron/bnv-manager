@@ -3,12 +3,12 @@ package ldap_impl
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm/utils"
 	"regexp"
 	"strings"
 
 	l "github.com/go-ldap/ldap/v3"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm/utils"
 
 	"github.com/myOmikron/bnv-manager/models/config"
 )
@@ -275,4 +275,26 @@ func GetClubadmins(club string, config *config.Config) ([]User, error) {
 	}
 
 	return results, nil
+}
+
+func CreateClub(id string, name string, config *config.Config) error {
+	conn, err := l.DialURL(config.LDAP.ServerURI)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
+		return err
+	}
+	defer conn.Unbind()
+
+	addRequest := l.NewAddRequest(fmt.Sprintf("cn=%s,%s", l.EscapeFilter(id), config.LDAP.ClubSearchBase), nil)
+	addRequest.Attribute("description", []string{name})
+
+	if err := conn.Add(addRequest); err != nil {
+		return err
+	}
+
+	return nil
 }
