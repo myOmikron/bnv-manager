@@ -418,3 +418,50 @@ func ChangePasswordForDN(dn string, oldPassword string, newPassword string, conf
 
 	return nil
 }
+
+func SetPasswordForClubAdmin(id string, password string, config *config.Config, adminWP worker.Pool) error {
+	hashed, err := HashPassword(password)
+	if err != nil {
+		return err
+	}
+
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
+
+		search, err := conn.Search(l.NewSearchRequest(
+			config.LDAP.UserSearchBase,
+			l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf(config.LDAP.UserSearchFilter, id),
+			[]string{"dn", "memberOf"},
+			nil,
+		))
+		if err != nil {
+			return err
+		}
+
+		if len(search.Entries) != 1 {
+			return errors.New("search returned not exactly one entries")
+		}
+
+		if !utils.Contains(search.Entries[0].GetAttributeValues("memberOf"), config.LDAP.ClubAdminGroupDN) {
+			return errors.New("user found but is not a club admin")
+		}
+
+		modReq := l.NewModifyRequest(search.Entries[0].DN, nil)
+		modReq.Replace("userPassword", []string{*hashed})
+
+		if err := conn.Modify(modReq); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	adminWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
+		return err
+	}
+
+	return nil
+}
