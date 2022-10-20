@@ -357,14 +357,29 @@ func DeleteClub(id string, config *config.Config, adminWP worker.Pool) error {
 	return nil
 }
 
-func ChangePasswordForDN(dn string, password string, adminWP worker.Pool) error {
-	hashed, err := HashPassword(password)
+func ChangePasswordForDN(dn string, oldPassword string, newPassword string, config *config.Config, adminWP worker.Pool) error {
+	hashed, err := HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
 
 	t := worker.NewTaskWithContext(func(ctx context.Context) error {
 		conn := ctx.Value("conn").(*l.Conn)
+
+		// Try to bind with old password
+		if err := conn.Bind(dn, oldPassword); err != nil {
+			// Rebind as admin
+			if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
+				return err
+			}
+
+			return err
+		}
+
+		// Rebind as admin
+		if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
+			return err
+		}
 
 		modReq := l.NewModifyRequest(dn, nil)
 		modReq.Replace("userPassword", []string{*hashed})

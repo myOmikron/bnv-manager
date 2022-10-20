@@ -12,7 +12,8 @@ import (
 )
 
 type changePasswordRequest struct {
-	Password *string `json:"password" echotools:"required;not empty"`
+	NewPassword *string `json:"new_password" echotools:"required;not empty"`
+	OldPassword *string `json:"old_password" echotools:"required;not empty"`
 }
 
 var (
@@ -28,7 +29,7 @@ func (w *Wrapper) ChangePassword(c echo.Context) error {
 	}
 
 	var hasUpper, hasLower, hasSpecial bool
-	for _, r := range []rune(*form.Password) {
+	for _, r := range []rune(*form.NewPassword) {
 		if lowerCaseAscii.MatchString(string(r)) {
 			hasLower = true
 		} else if upperCaseAscii.MatchString(string(r)) {
@@ -41,7 +42,7 @@ func (w *Wrapper) ChangePassword(c echo.Context) error {
 			break
 		}
 	}
-	if len(*form.Password) < 12 {
+	if len(*form.NewPassword) < 12 {
 		return c.String(400, "Password must have a minimum 12 characters")
 	} else if !hasLower || !hasUpper {
 		return c.String(400, "Password must have lower and upper case characters")
@@ -61,7 +62,7 @@ func (w *Wrapper) ChangePassword(c echo.Context) error {
 		return c.String(500, "Internal server error")
 	}
 
-	if err := ldap_impl.ChangePasswordForDN(user.DN, *form.Password, w.AdminWP); err != nil {
+	if err := ldap_impl.ChangePasswordForDN(user.DN, *form.OldPassword, *form.NewPassword, w.Config, w.AdminWP); err != nil {
 		c.Logger().Error(err)
 		return c.String(500, "LDAP Error")
 	}
