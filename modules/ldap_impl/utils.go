@@ -291,17 +291,6 @@ func GetClubadmins(club string, config *config.Config, roWP worker.Pool) ([]User
 }
 
 func CreateClub(id string, name string, config *config.Config, adminWP worker.Pool) error {
-	conn, err := l.DialURL(config.LDAP.ServerURI)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	if err := conn.Bind(config.LDAP.AdminBindUser, config.LDAP.AdminBindPassword); err != nil {
-		return err
-	}
-	defer conn.Unbind()
-
 	t := worker.NewTaskWithContext(func(ctx context.Context) error {
 		conn := ctx.Value("conn").(*l.Conn)
 
