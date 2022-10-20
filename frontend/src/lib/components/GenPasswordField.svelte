@@ -9,15 +9,20 @@
 		passwordVisible = true;
 	}
 
-	let value: string;
-	let disabled: boolean = false;
-	let required: boolean = false;
-	let light: boolean = false;
-	let passwordVisible: boolean = false;
-	let labelText: string = "Passwort";
-	let tooltipAlignment: "start" | "center" | "end" | undefined = undefined;
-	let tooltipPosition: "top" | "right" | "bottom" | "left" | undefined =
+	export let value: string;
+	export let disabled: boolean = false;
+	export let required: boolean = false;
+	export let light: boolean = false;
+	export let passwordVisible: boolean = false;
+	export let labelText: string = "Passwort";
+	export let tooltipAlignment: "start" | "center" | "end" | undefined =
 		undefined;
+	export let tooltipPosition:
+		| "top"
+		| "right"
+		| "bottom"
+		| "left"
+		| undefined = undefined;
 </script>
 
 <div class="gen-password">
