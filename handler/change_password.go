@@ -67,5 +67,9 @@ func (w *Wrapper) ChangePassword(c echo.Context) error {
 		return c.String(500, "LDAP Error")
 	}
 
+	if err := middleware.Logout(w.DB, c); err != nil {
+		c.Logger().Error(err)
+	}
+
 	return c.NoContent(200)
 }
