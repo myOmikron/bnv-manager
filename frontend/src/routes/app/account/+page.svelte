@@ -41,10 +41,10 @@
 					{:else if data.account?.isUser}
 						Benutzer
 						{#if data.account?.isClubAdmin}
-							+ Vereins-Manager
+							+ Verein-Manager
 						{/if}
 					{:else if data.account?.isClubAdmin}
-						Vereins-Manager
+						Verein-Manager
 					{:else}
 						Eingeschränkt
 					{/if}

@@ -1,7 +1,5 @@
 export interface ClubAdminResponse {
-    username: null | string,
-    error: null | string,
-    success: boolean
+    username: string,
 }
 
 export interface ClubAdmin {
@@ -29,18 +27,27 @@ export async function createClubAdmin(firstname: string, surname: string, passwo
         })
     });
     if (!response.ok)
-        return {
-            username: null,
-            error: await response.text(),
-            success: false
-        };
+        throw new Error(await response.text());
 
     let json = await response.json();
     return {
         username: json.username,
-        error: null,
-        success: true
     }
+}
+
+export async function changeClubAdminPassword(username: string, password: string): Promise<void> {
+    let response = await fetch("/api/clubadmins/" + encodeURIComponent(username) + "/password", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            // TODO: validate when implemented
+            new_password: password
+        })
+    });
+    if (!response.ok)
+        throw new Error(await response.text());
 }
 
 export async function getClubAdmins(club_id: string): Promise<ClubAdmin[]> {
@@ -59,7 +66,7 @@ export async function getClubs(): Promise<Club[]> {
         throw new Error(await response.text());
 
     let json = await response.json();
-    return json.clubs.map((c: {club_id: string, club_name: string}): Club => ({
+    return json.clubs.map((c: { club_id: string, club_name: string }): Club => ({
         id: c.club_id,
         name: c.club_name
     }));

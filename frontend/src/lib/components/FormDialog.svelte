@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { InlineLoading, Modal } from "carbon-components-svelte";
+	import { createEventDispatcher, onMount } from "svelte";
 
 	export let open: boolean = false;
 	export let preventCloseOnClickOutside: boolean = false;
@@ -16,7 +17,12 @@
 	export let primaryButtonIcon: any = undefined;
 
 	// for duplicating JSON
-	let resetStateData = JSON.stringify(state);
+	let resetStateData: string | undefined = undefined;
+	onMount(async () => {
+		resetStateData = JSON.stringify(state);
+	});
+
+	const dispatch = createEventDispatcher();
 
 	export let init: Function | undefined = undefined;
 	export let work: Function;
@@ -26,7 +32,13 @@
 	async function initState() {
 		working = false;
 		error = undefined;
-		state = JSON.parse(resetStateData);
+		if (resetStateData) {
+			try {
+				state = JSON.parse(resetStateData);
+			} catch (e) {
+				console.error(e, resetStateData);
+			}
+		}
 		if (init) await init();
 	}
 
@@ -58,8 +70,14 @@
 	primaryButtonDisabled={working || primaryButtonDisabled}
 	secondaryButtonText={cancelText}
 	on:click:button--secondary={() => (working ? null : (open = false))}
-	on:open={initState}
-	on:close={() => (open = false)}
+	on:open={(event) => {
+		initState();
+		dispatch("open", event);
+	}}
+	on:close={(event) => {
+		open = false;
+		dispatch("close", event);
+	}}
 	on:submit={handleSubmit}
 >
 	{#if working}

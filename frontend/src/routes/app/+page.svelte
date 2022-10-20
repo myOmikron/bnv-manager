@@ -35,7 +35,7 @@
 						Benutzerverwaltung
 					</Button>
 					<Button icon={Wikis} kind="ghost" href="/app/club/webspace">
-						{data.account?.isUser ? "Vereins-Webspace" : "Webspace"}
+						{data.account?.isUser ? "Verein-Webspace" : "Webspace"}
 					</Button>
 				{/if}
 				{#if data.account?.isAdmin}

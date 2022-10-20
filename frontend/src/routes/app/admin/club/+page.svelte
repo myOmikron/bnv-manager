@@ -1,5 +1,10 @@
 <script lang="ts">
-    import { createClubAdmin, deleteClub, getClubAdmins } from "$lib/admin";
+    import {
+        changeClubAdminPassword,
+        createClubAdmin,
+        deleteClub,
+        getClubAdmins,
+    } from "$lib/admin";
     import { generatePassword, validatePassword } from "$lib/password";
     import type { PageData } from "./$types";
 
@@ -18,7 +23,7 @@
         ToolbarSearch,
     } from "carbon-components-svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
-    import Renew from "carbon-icons-svelte/lib/Renew.svelte";
+    import Password from "carbon-icons-svelte/lib/Password.svelte";
     import type {
         DataTableHeader,
         DataTableRow,
@@ -27,15 +32,9 @@
     import FormDialog from "$lib/components/FormDialog.svelte";
     import PageError from "$lib/components/PageError.svelte";
     import Tiles from "$lib/components/Tiles.svelte";
+    import GenPasswordField from "$lib/components/GenPasswordField.svelte";
 
     let clubId = data.clubId;
-
-    async function handleGeneratePasswordButton(event: MouseEvent) {
-        let gen = generatePassword();
-        if (gen)
-            createData.password = gen;
-        createData.passwordVisible = true;
-    }
 
     let rowsPromise: Promise<DataTableRow[]> = getClubAdmins(clubId).then(
         (rows) =>
@@ -49,18 +48,20 @@
     let rowsLoaded = false;
     let rowsError: any;
     let rows: DataTableRow[] = [];
-    rowsPromise.then((r) => {
-        rowsLoaded = true;
-        rows = r;
-    }).catch((e) => {
-        rowsError = e;
-    });
+    rowsPromise
+        .then((r) => {
+            rowsLoaded = true;
+            rows = r;
+        })
+        .catch((e) => {
+            rowsError = e;
+        });
     let naProcess = (v: DataTableValue) =>
         typeof v == "undefined" ? "n/a" : v;
     let headers: DataTableHeader[] = [
         { key: "firstname", value: "Vorname", display: naProcess },
         { key: "surname", value: "Nachname", display: naProcess },
-        { key: "username", value: "Vereins-ID", display: naProcess },
+        { key: "username", value: "Verein-ID", display: naProcess },
         { key: "email", value: "E-Mail", display: naProcess },
     ];
     let active = false;
@@ -87,11 +88,17 @@
         password: "",
         passwordVisible: false,
     };
+
+    let resetPasswordId = "";
+    let changeData = {
+        saving: false,
+        password: "",
+    };
 </script>
 
 <Tiles style="max-width: 1200px">
     <Tile>
-        <h2>Vereins-Admins</h2>
+        <h2>Verein-Administratoren</h2>
 
         {#if rowsError}
             <PageError
@@ -117,15 +124,29 @@
                                     (row) => !selectedRowIds.includes(row.id)
                                 );
                                 selectedRowIds = [];
+                                active = false;
                             }}
                         >
-                            Delete
+                            Löschen
+                        </Button>
+                        <Button
+                            icon={Password}
+                            disabled={selectedRowIds.length !== 1}
+                            on:click={() => {
+                                if (selectedRowIds.length !== 1)
+                                    throw new Error("unexpected selection");
+                                resetPasswordId = selectedRowIds[0];
+                                selectedRowIds = [];
+                                active = false;
+                            }}
+                        >
+                            Passwort Zurücksetzen
                         </Button>
                     </ToolbarBatchActions>
                     <ToolbarContent>
                         <ToolbarSearch />
                         <Button on:click={() => (showCreateClubAdmin = true)}>
-                            Vereins-Admin Hinzufügen
+                            Verein-Administrator Hinzufügen
                         </Button>
                     </ToolbarContent>
                 </Toolbar>
@@ -144,9 +165,8 @@
 
 <FormDialog
     bind:open={showCreateClubAdmin}
-    name="Vereins-Admin Hinzufügen"
+    name="Verein-Administrator Hinzufügen"
     submitText="Erstellen"
-    selectorPrimaryFocus="#db-name"
     work={async () => {
         let res = await createClubAdmin(
             createData.firstName,
@@ -154,7 +174,6 @@
             createData.password,
             clubId
         );
-        if (!res.success) throw new Error(res.error || "");
 
         rows.push({
             id: res.username,
@@ -184,30 +203,14 @@
         required
     />
 
-    <div class="gen-password">
-        <PasswordInput
-            light
-            labelText="Passwort"
-            required
-            bind:value={createData.password}
-            disabled={createData.saving}
-            tooltipAlignment="end"
-            tooltipPosition="left"
-            invalid={validatePassword(createData.password).length > 0}
-            invalidText={validatePassword(createData.password).join(".\n")}
-        />
-        <!-- TODO: show PasswordInput text with createData.passwordVisible (no API for that yet) -->
-        <Button
-            icon={Renew}
-            on:click={handleGeneratePasswordButton}
-            disabled={createData.saving}
-            size="field"
-            kind="danger-ghost"
-            tooltipAlignment="end"
-            tooltipPosition="top"
-            iconDescription="Zufällig Generieren"
-        />
-    </div>
+    <GenPasswordField
+        light
+        labelText="Passwort"
+        bind:value={createData.password}
+        bind:passwordVisible={createData.passwordVisible}
+        disabled={createData.saving}
+        required
+    />
 </FormDialog>
 
 <FormDialog
@@ -231,7 +234,7 @@
             <b>nicht Wiederherstellbar</b>!
         </p>
         <ul>
-            <li>der Web-Space des Vereins wird gelöscht</li>
+            <li>der Webspace des Vereins wird gelöscht</li>
             <li>
                 alle dem Verein zugeordneten Benutzer werden gelöscht, inkl.
                 E-Mails und Postfächer
@@ -244,20 +247,38 @@
     </div>
 </FormDialog>
 
+<FormDialog
+    open={resetPasswordId.length > 0}
+    name="Passwort für Administrator zurücksetzen"
+    submitText="Zurücksetzen"
+    workingText="Ändere Passwort..."
+    bind:working={changeData.saving}
+    bind:state={changeData}
+    danger
+    on:close={() => (resetPasswordId = "")}
+    work={async () => {
+        await changeClubAdminPassword(resetPasswordId, changeData.password);
+    }}
+>
+    <p>
+        Passwort zurücksetzen für Benutzer <strong>{resetPasswordId}</strong>
+    </p>
+
+    <GenPasswordField
+        light
+        labelText="Neues Passwort"
+        bind:value={changeData.password}
+        disabled={changeData.saving}
+        required
+    />
+
+    <p>
+        Bitte teile dem Administrator das neue Passwort zeitnah zu, damit sie
+        sich wieder einloggen können.
+    </p>
+</FormDialog>
+
 <style>
-    .gen-password {
-        display: flex;
-        align-items: flex-start;
-    }
-
-    .gen-password > :global(:nth-child(2)) {
-        margin-top: 24px;
-    }
-
-    .gen-password :global(.bx--form-requirement) {
-        white-space: pre-wrap;
-    }
-
     .wide-p p,
     .wide-p ul,
     .wide-p li {

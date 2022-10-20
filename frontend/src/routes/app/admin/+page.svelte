@@ -84,7 +84,7 @@
 	/>
 	<TextInput
 		light
-		labelText="Vereins-Name"
+		labelText="Verein-Name"
 		bind:value={createData.name}
 		disabled={createData.saving}
 		required

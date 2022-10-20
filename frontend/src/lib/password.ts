@@ -4,10 +4,10 @@ const pwdChars =
 export function validatePassword(
 	password: string,
 	minChars: number = 12,
-	requireUpperAndLower: boolean = true,
+	requireLetters: boolean = false,
 	requireSpecial: boolean = true,
 ): string[] {
-	if (!password.length) return [];
+	if (!password || !password.length) return [];
 	let ret: string[] = [];
 	let hasUpper, hasLower, hasSpecial;
 	for (let i = 0; i < password.length; i++) {
@@ -18,8 +18,8 @@ export function validatePassword(
 	}
 	if (password.length < minChars)
 		ret.push(`Passwort muss mindestens ${minChars} Zeichen lang sein`);
-	if (requireUpperAndLower && (!hasLower || !hasUpper))
-		ret.push("Passwort muss Klein und Großbuchstaben beinhalten");
+	if (requireLetters && !hasLower && !hasUpper)
+		ret.push("Passwort muss Klein oder Großbuchstaben beinhalten");
 	if (requireSpecial && !hasSpecial)
 		ret.push("Passwort muss mindestens ein Sonderzeichen beinhalten");
 	return ret;
