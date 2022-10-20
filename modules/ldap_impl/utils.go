@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/myOmikron/echotools/worker"
 	"regexp"
 	"strings"
 
 	l "github.com/go-ldap/ldap/v3"
+	"github.com/myOmikron/echotools/worker"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm/utils"
 
@@ -354,6 +354,34 @@ func DeleteClub(id string, config *config.Config, adminWP worker.Pool) error {
 			if err := conn.Del(l.NewDelRequest(entry.DN, nil)); err != nil {
 				return err
 			}
+		}
+
+		return nil
+	})
+
+	adminWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ChangePasswordForDN(dn string, password string, adminWP worker.Pool) error {
+	hashed, err := HashPassword(password)
+	if err != nil {
+		return err
+	}
+
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
+
+		modReq := l.NewModifyRequest(dn, nil)
+		modReq.Replace("userPassword", []string{*hashed})
+
+		if err := conn.Modify(modReq); err != nil {
+			return err
 		}
 
 		return nil
