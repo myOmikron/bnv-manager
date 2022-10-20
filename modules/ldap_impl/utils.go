@@ -166,6 +166,7 @@ type Club struct {
 	DN          string
 	CN          string
 	Description string
+	Domains     []string
 }
 
 func GetAllClubs(config *config.Config, roWP worker.Pool) ([]Club, error) {
@@ -186,10 +187,28 @@ func GetAllClubs(config *config.Config, roWP worker.Pool) ([]Club, error) {
 		}
 
 		for _, entry := range sr.Entries {
+			entrySR, err := conn.Search(l.NewSearchRequest(
+				config.LDAP.DomainSearchBase,
+				l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+				fmt.Sprintf("(&(objectClass=domain)(memberOf=%s))", entry.DN),
+				[]string{"dn", "dc"},
+				nil,
+			))
+			if err != nil {
+				return err
+			}
+
+			domains := make([]string, 0)
+
+			for _, e := range entrySR.Entries {
+				domains = append(domains, e.GetAttributeValue("dc"))
+			}
+
 			groupDNs = append(groupDNs, Club{
-				DN:          entry.GetAttributeValue("dn"),
+				DN:          entry.DN,
 				CN:          entry.GetAttributeValue("cn"),
 				Description: entry.GetAttributeValue("description"),
+				Domains:     domains,
 			})
 		}
 

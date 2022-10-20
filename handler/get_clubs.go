@@ -7,8 +7,9 @@ import (
 )
 
 type club struct {
-	ClubID   string `json:"club_id"`
-	ClubName string `json:"club_name"`
+	ClubID   string   `json:"club_id"`
+	ClubName string   `json:"club_name"`
+	Domains  []string `json:"domains"`
 }
 
 type getClubsResponse struct {
@@ -23,10 +24,11 @@ func (w *Wrapper) GetClubs(c echo.Context) error {
 	}
 
 	res := getClubsResponse{Clubs: make([]club, 0)}
-	for _, c := range clubs {
+	for _, cl := range clubs {
 		res.Clubs = append(res.Clubs, club{
-			ClubID:   c.CN,
-			ClubName: c.Description,
+			ClubID:   cl.CN,
+			ClubName: cl.Description,
+			Domains:  cl.Domains,
 		})
 	}
 
