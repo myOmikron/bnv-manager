@@ -54,8 +54,7 @@
 
 <style>
 	.header-wrapper {
-		background-color: var(--cds-ui-01);
-		height: 50px;
+		background-color: var(--cds-ui-02);
 		transition: background-color 0.2s ease-in, transform 0.3s ease-out;
 	}
 
