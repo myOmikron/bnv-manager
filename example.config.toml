@@ -51,6 +51,9 @@ ClubSearchBase = ""
 ClubSearchFilter = "(&(objectClass=groupOfNames)(cn=%s))"
 # The group to query to check if the user is a club admin
 ClubAdminGroupDN = ""
+DomainSearchBase = ""
+# Normal LDAP filter. Use %s to insert the domain.
+DomainSearchFilter = "(&(objectClass=domain)(dc=%s))"
 # The group to query to check if the user is an admin
 AdminGroupDN = ""
 # A dummy user that must not be included in the search base of any of the above search bases

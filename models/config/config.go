@@ -46,18 +46,20 @@ type Database struct {
 }
 
 type LDAP struct {
-	ServerURI         string
-	AdminBindUser     string
-	AdminBindPassword string
-	ROBindUser        string
-	ROBindPassword    string
-	UserSearchBase    string
-	UserSearchFilter  string
-	ClubSearchBase    string
-	ClubSearchFilter  string
-	ClubAdminGroupDN  string
-	AdminGroupDN      string
-	DummyUserDN       string
+	ServerURI          string
+	AdminBindUser      string
+	AdminBindPassword  string
+	ROBindUser         string
+	ROBindPassword     string
+	UserSearchBase     string
+	UserSearchFilter   string
+	ClubSearchBase     string
+	ClubSearchFilter   string
+	ClubAdminGroupDN   string
+	DomainSearchBase   string
+	DomainSearchFilter string
+	AdminGroupDN       string
+	DummyUserDN        string
 }
 
 type Mailcow struct {
