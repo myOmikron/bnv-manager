@@ -128,7 +128,7 @@
 						</Button>
 					</ToolbarBatchActions>
 					<ToolbarContent>
-						<ToolbarSearch />
+						<ToolbarSearch persistent shouldFilterRows />
 						<Button on:click={() => (showCreateUser = true)}>
 							Mitglied Hinzufügen
 						</Button>

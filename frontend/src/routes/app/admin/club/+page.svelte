@@ -9,6 +9,7 @@
 	import FormDialog from "$lib/components/FormDialog.svelte";
 	import Tiles from "$lib/components/Tiles.svelte";
 	import ClubAdminList from "./ClubAdminList.svelte";
+    import DomainList from "./DomainList.svelte";
 
 	let clubId = data.clubId;
 
@@ -28,6 +29,7 @@
 
 <Tiles style="max-width: 1200px">
 	<ClubAdminList {clubId} />
+	<DomainList {clubId} />
 
 	<Tile>
 		<Button kind="danger-tertiary" on:click={() => deleteDialog()}>

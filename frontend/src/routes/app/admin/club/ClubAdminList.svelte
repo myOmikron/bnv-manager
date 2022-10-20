@@ -124,7 +124,7 @@
 					</Button>
 				</ToolbarBatchActions>
 				<ToolbarContent>
-					<ToolbarSearch />
+					<ToolbarSearch persistent shouldFilterRows />
 					<Button on:click={() => (showCreateClubAdmin = true)}>
 						Verein-Administrator Hinzufügen
 					</Button>
