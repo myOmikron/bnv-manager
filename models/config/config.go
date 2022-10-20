@@ -60,10 +60,16 @@ type LDAP struct {
 	DummyUserDN       string
 }
 
+type Mailcow struct {
+	ServerURI string
+	APIKey    string
+}
+
 type Config struct {
 	Server   Server
 	Database Database
 	LDAP     LDAP
+	Mailcow  Mailcow
 }
 
 func (conf *Config) CheckConfig() error {
