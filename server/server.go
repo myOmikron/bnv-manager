@@ -3,7 +3,6 @@ package server
 import (
 	"errors"
 	"fmt"
-	"github.com/myOmikron/bnv-manager/modules/wp"
 	"io/fs"
 	"os"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/pelletier/go-toml"
 
 	"github.com/myOmikron/bnv-manager/models/config"
+	"github.com/myOmikron/bnv-manager/modules/wp"
 )
 
 func StartServer(configPath string) {
