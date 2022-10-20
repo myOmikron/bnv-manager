@@ -1,4 +1,3 @@
-import type { LayoutLoad } from './$types';
 import { getAccount } from '../../lib/user';
 import { goto } from '$app/navigation';
  

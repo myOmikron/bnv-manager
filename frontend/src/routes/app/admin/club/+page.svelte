@@ -1,5 +1,6 @@
 <script lang="ts">
     import { createClubAdmin, deleteClub, getClubAdmins } from "$lib/admin";
+    import { generatePassword, validatePassword } from "$lib/password";
     import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -8,9 +9,7 @@
         Button,
         DataTable,
         DataTableSkeleton,
-        Modal,
         PasswordInput,
-        InlineLoading,
         TextInput,
         Tile,
         Toolbar,
@@ -31,45 +30,11 @@
 
     let clubId = data.clubId;
 
-    const pwdChars =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_'/.,<>:;[]{}";
     async function handleGeneratePasswordButton(event: MouseEvent) {
-        const random = new Uint32Array(16);
-        for (let i = 0; i < 10; i++) {
-            if (window.Crypto && window.crypto)
-                window.crypto.getRandomValues(random);
-            else
-                for (let n = 0; n < 16; n++)
-                    random[n] = Math.floor(Math.random() * pwdChars.length);
-
-            let password = "";
-            for (let n = 0; n < 16; n++)
-                password += pwdChars[random[n] % pwdChars.length];
-            if (validatePasswordImpl(password).length == 0) {
-                createData.password = password;
-                break;
-            }
-        }
+        let gen = generatePassword();
+        if (gen)
+            createData.password = gen;
         createData.passwordVisible = true;
-    }
-
-    function validatePasswordImpl(password: string): string[] {
-        if (!password.length) return [];
-        let ret: string[] = [];
-        let hasUpper, hasLower, hasSpecial;
-        for (let i = 0; i < password.length; i++) {
-            const c = password[i];
-            if (c >= "a" && c <= "z") hasLower = true;
-            else if (c >= "A" && c <= "Z") hasUpper = true;
-            else hasSpecial = true;
-        }
-        if (password.length < 12)
-            ret.push("Passwort muss mindestens 12 Zeichen lang sein");
-        if (!hasLower || !hasUpper)
-            ret.push("Passwort muss Klein und Großbuchstaben beinhalten");
-        if (!hasSpecial)
-            ret.push("Passwort muss mindestens ein Sonderzeichen beinhalten");
-        return ret;
     }
 
     let rowsPromise: Promise<DataTableRow[]> = getClubAdmins(clubId).then(
@@ -120,8 +85,6 @@
         firstName: "",
         lastName: "",
         password: "",
-        passwordInvalid: false,
-        passwordInvalidText: "",
         passwordVisible: false,
     };
 </script>
@@ -230,8 +193,8 @@
             disabled={createData.saving}
             tooltipAlignment="end"
             tooltipPosition="left"
-            invalid={validatePasswordImpl(createData.password).length > 0}
-            invalidText={validatePasswordImpl(createData.password).join(".\n")}
+            invalid={validatePassword(createData.password).length > 0}
+            invalidText={validatePassword(createData.password).join(".\n")}
         />
         <!-- TODO: show PasswordInput text with createData.passwordVisible (no API for that yet) -->
         <Button

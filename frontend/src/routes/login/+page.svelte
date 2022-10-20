@@ -45,7 +45,7 @@
 					labelText="Username"
 					placeholder="Enter your username..."
 					required
-					tab-index="0"
+					autofocus
 				/>
 				<PasswordInput
 					light

@@ -73,9 +73,24 @@ export async function logout(): Promise<void> {
 	let res = await fetch("/api/logout");
 	if (res.ok)
 		window.sessionStorage.removeItem("accountState");
-	else
-	{
+	else {
 		alert("Logout failed!");
 		window.location.reload();
 	}
+}
+
+export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
+	let res = await fetch("/api/me/password", {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			old_password: oldPassword,
+			new_password: newPassword
+		})
+	});
+
+	if (!res.ok)
+		throw new Error(await res.text());
 }
