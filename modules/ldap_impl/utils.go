@@ -224,6 +224,62 @@ func GetAllClubs(config *config.Config, roWP worker.Pool) ([]Club, error) {
 	return groupDNs, nil
 }
 
+func GetClubByID(id string, config *config.Config, roWP worker.Pool) (*Club, error) {
+	var c Club
+
+	t := worker.NewTaskWithContext(func(ctx context.Context) error {
+		conn := ctx.Value("conn").(*l.Conn)
+
+		sr, err := conn.Search(l.NewSearchRequest(
+			config.LDAP.ClubSearchBase,
+			l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf(config.LDAP.ClubSearchFilter, l.EscapeFilter(id)),
+			[]string{"dn", "cn", "description"},
+			nil,
+		))
+		if err != nil {
+			return err
+		}
+
+		if len(sr.Entries) != 1 {
+			return errors.New("search returned != 1 Entries")
+		}
+
+		srDomains, err := conn.Search(l.NewSearchRequest(
+			config.LDAP.DomainSearchBase,
+			l.ScopeSingleLevel, l.NeverDerefAliases, 0, 0, false,
+			fmt.Sprintf("(&(objectClass=dc)(memberOf=%s))", sr.Entries[0].DN),
+			[]string{"dn", "dc"},
+			nil,
+		))
+		if err != nil {
+			return err
+		}
+
+		domains := make([]string, 0)
+		for _, dmn := range srDomains.Entries {
+			domains = append(domains, dmn.GetAttributeValue("dc"))
+		}
+
+		c = Club{
+			DN:          sr.Entries[0].DN,
+			CN:          sr.Entries[0].GetAttributeValue("cn"),
+			Description: sr.Entries[0].GetAttributeValue("description"),
+			Domains:     domains,
+		}
+
+		return nil
+	})
+
+	roWP.AddTask(t)
+
+	if err := t.WaitForResult(); err != nil {
+		return nil, err
+	}
+
+	return &c, nil
+}
+
 func CheckIfClubExists(name string, config *config.Config, roWP worker.Pool) (*string, error) {
 	var ret *string
 

@@ -73,6 +73,7 @@ func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config, readOnlyWP wor
 	e.GET("/api/clubs", adminRequired(api.GetClubs))
 	e.POST("/api/clubs", adminRequired(api.CreateClub))
 	e.DELETE("/api/clubs", adminRequired(api.DeleteClub))
+	e.GET("/api/clubs/:id", adminRequired(api.GetClub))
 
 	e.GET("/api/domains", adminRequired(api.GetDomains))
 
