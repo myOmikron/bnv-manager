@@ -61,6 +61,7 @@ func defineRoutes(e *echo.Echo, db *gorm.DB, conf *config.Config, readOnlyWP wor
 
 	e.POST("/api/login", api.Login)
 	e.GET("/api/logout", api.Logout)
+	e.POST("/api/logout", api.Logout)
 
 	e.GET("/api/me", loginRequired(api.Me))
 	e.PUT("/api/me/password", loginRequired(api.ChangePassword))
